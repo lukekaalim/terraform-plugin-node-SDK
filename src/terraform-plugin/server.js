@@ -3,18 +3,14 @@ const grpc = require('grpc');
 const path = require('path');
 const { console } = require('../console');
 
+const { handshake } = require('./handshake');
+
 const terraformProto = protoLoader.loadSync(path.join(__dirname, './tfplugin5.proto'));
 const terraformPackage = grpc.loadPackageDefinition(terraformProto);
 
 const { createGoPluginServer, InvalidMagicCookieError } = require('../go-plugin/server');
 
-const handshake = {
-  ProtocolVersion: 5,
-  MagicCookieKey: 'TF_PLUGIN_MAGIC_COOKIE',
-  MagicCookieValue: 'd602bf8f470bc67ca7faa0386276bbdd4330efaf76d1a219cb4d6991ca9872b2'
-};
-
-const createTerraformPlugin = async () => {
+const createTerraformPluginServer = async () => {
   try {
     console.log('Creating terraform plugin!');
 
@@ -93,7 +89,7 @@ const createTerraformPlugin = async () => {
         readDataSource,
         stop,
       });
-    }, '0.0.0.0:50051');
+    });
 
   } catch (err) {
     if (err instanceof InvalidMagicCookieError) {
@@ -106,5 +102,5 @@ const createTerraformPlugin = async () => {
 };
 
 module.exports = {
-  createTerraformPlugin,
+  createTerraformPluginServer,
 };

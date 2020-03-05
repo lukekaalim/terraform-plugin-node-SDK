@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-const { createServer } = require('./src/server.js');
-const { createGoPluginServer } = require('./src/go-plugin/server.js');
+const { createTerraformPluginClient } = require('./src/terraform-plugin/client');
 
 class UnknownCommandError extends Error {
+  unknownCommandText;
+
   constructor(unknownCommandText) {
-    super(`No known handler for command ${unknownCommandText}.`)
+    super(`No known handler for command ${unknownCommandText}.`);
+    this.unknownCommandText = unknownCommandText;
   }
 }
 
@@ -14,30 +16,35 @@ class NoMainCommandError extends Error {
   }
 }
 
+class InvalidPluginFilenameError extends Error {
+  constructor() {
+    super('A bad filename was provided to the CLI');
+  }
+}
+
 const cli = async (mainCommand, ...otherArgs) => {
   try {
     switch (mainCommand) {
-      case 'go-plugin': {
-        const server = await createGoPluginServer(null, '127.0.0.1:54321', console);
+      case 'run':
+        const [pluginFilename] = otherArgs;
+        if (!pluginFilename) {
+          throw new InvalidPluginFilenameError();
+        }
+        await createTerraformPluginClient(pluginFilename);
         return;
-      }
-      case 'server': {
-        const server = await createServer();
-        console.log('Press any key to shut down.');
-        process.stdin.setRawMode( true );
-        process.stdin.on('data', function (chunk, key) {
-          server.tryShutdown(() => console.log('Server is shut down'));
-          process.stdin.pause();
-        });
-        return;
-      }
       case undefined:
         throw new NoMainCommandError();
       default:
         throw new UnknownCommandError(mainCommand);
     }
   } catch (err) {
-    console.error(err);
+    if (err instanceof UnknownCommandError) {
+      console.log(`I didn't understand the command: "${err.unknownCommandText}"`);
+    } else if (err instanceof NoMainCommandError) {
+      console.log(`Please enter a command.`);
+    } else {
+      console.error(err);
+    }
   }
 };
 

@@ -1,8 +1,6 @@
 const grpc = require('grpc');
 const pem = require('pem').promisified;
-const { promisify } = require('util');
 const { console } = require('../console');
-
 
 const { addHealthcheckService } = require('../healthcheck/service');
 
@@ -12,16 +10,17 @@ class InvalidMagicCookieError extends Error {
   }
 }
 
-const createGoPluginServer = async (handshake, addPluginService, address) => {
+const createGoPluginServer = async (handshake, addPluginService) => {
   // don't print to stdout, print to custom logger implementation
   grpc.setLogger(console);
 
   if (process.env[handshake.MagicCookieKey] !== handshake.MagicCookieValue)
     throw new InvalidMagicCookieError();
 
-  const clientCert = process.env['PLUGIN_CLIENT_CERT'].slice(0, -1)
+  const clientCert = process.env['PLUGIN_CLIENT_CERT'];
 
   // we only support grpc
+  const address = '0.0.0.0:50051';
   const server = new grpc.Server();
 
   addHealthcheckService(server);
@@ -32,12 +31,14 @@ const createGoPluginServer = async (handshake, addPluginService, address) => {
     altNames: ['localhost']
   });
 
-  console.log(
-    await pem.readCertificateInfo(clientCert),
-    await pem.readCertificateInfo(serverCert),
-    clientKey,
-    serviceKey
-  );
+  if (clientCert) {
+    console.log(
+      await pem.readCertificateInfo(clientCert),
+      await pem.readCertificateInfo(serverCert),
+      clientKey,
+      serviceKey
+    );
+  }
 
   const grpcServerCreds = grpc.ServerCredentials.createSsl(Buffer.from(serverCert), [], false);
   server.bind(address, grpcServerCreds);
