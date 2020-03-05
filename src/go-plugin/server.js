@@ -1,5 +1,6 @@
 const grpc = require('grpc');
 const pem = require('pem').promisified;
+const { createEncodedCert, mark } = require('go-plugin-helper-node');
 const { console } = require('../console');
 
 const { addHealthcheckService } = require('../healthcheck/service');
@@ -19,6 +20,8 @@ const createGoPluginServer = async (handshake, addPluginService) => {
 
   const clientCert = process.env['PLUGIN_CLIENT_CERT'];
 
+  console.log(Buffer.from(clientCert).toString('utf8'));
+
   // we only support grpc
   const address = '0.0.0.0:50051';
   const server = new grpc.Server();
@@ -28,37 +31,19 @@ const createGoPluginServer = async (handshake, addPluginService) => {
 
   const { certificate: serverCert, clientKey, serviceKey } = await pem.createCertificate({
     selfSigned: true,
-    altNames: ['localhost']
+    altNames: ['localhost'],
+    days: 20,
   });
 
-  if (clientCert) {
-    console.log(
-      await pem.readCertificateInfo(clientCert),
-      await pem.readCertificateInfo(serverCert),
-      clientKey,
-      serviceKey
-    );
-  }
-
-  const grpcServerCreds = grpc.ServerCredentials.createSsl(Buffer.from(serverCert), [], false);
+  const grpcServerCreds = grpc.ServerCredentials.createSsl(Buffer.from(clientCert), []);
   server.bind(address, grpcServerCreds);
   server.start();
 
-  const marker = [
-    1,
-    handshake.ProtocolVersion,
-    'tcp',
-    address,
-    'grpc',
-    // remove the padding from the base64 encoded string because go is a dumb language
-    Buffer.from(serverCert, 'utf8').toString('base64').slice(0, -2)
-  ].join('|');
+  //mark(1, handshake.ProtocolVersion, 'tcp', address, 'grpc', createEncodedCert());
 
-  console.log(marker);
+  // process.stdout.write('\n');
 
-  //await new Promise(res => setTimeout(() => res(), 5000));
-  process.stdout.write(marker);
-  process.stdout.write('\n');
+  setTimeout(() => {}, 2000)
   return server;
 };
 
