@@ -1,6 +1,7 @@
 const { spawn } = require('child_process');
 const pem = require('pem').promisified;
-const { createEncodedCert, mark } = require('go-plugin-helper-node');
+const grpc = require('@grpc/grpc-js');
+const net = require('net');
 
 const getConnectionMarker = (pluginProcess) => new Promise(resolve => {
   let firstLine = '';
@@ -35,23 +36,25 @@ const getConnectionMarker = (pluginProcess) => new Promise(resolve => {
   pluginProcess.stdout.addListener('data', stdoutListener);
 });
 
-const hashicorpCert = `MIICMTCCAZKgAwIBAgIRAMQG1pVDYIoDodqjMypzV/owCgYIKoZIzj0EAwQwKDESMBAGA1UEChMJSGFzaGlDb3JwMRIwEAYDVQQDEwlsb2NhbGhvc3QwIBcNMjAwMzA1MDAyNzUzWhgPMjA1MDAzMDUxMjI4MjNaMCgxEjAQBgNVBAoTCUhhc2hpQ29ycDESMBAGA1UEAxMJbG9jYWxob3N0MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAD0GNjHnKejuWBXrapvOQ1k7oB1AzHasMospcFS0ZMsX4dm+uh56Y0jBjwuAoLjX8WRpCImdN+EyYhOKi9s2WIN8AEUIJXRRCBvoOD4Ji4yRkchlR4wdCzsbLWsJe449mR+NSc8s06ammxIJIa5GTYuaeEdpTrxkYZzplR3odAgZ8CQajWDBWMA4GA1UdDwEB/wQEAwICrDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwDwYDVR0TAQH/BAUwAwEB/zAUBgNVHREEDTALgglsb2NhbGhvc3QwCgYIKoZIzj0EAwQDgYwAMIGIAkIAyg1lPREkND0aHscgAlbJwNH6cxd34eC2ZO1eIyfF2NMoc689ZhoNBupLwpRfnhJ309Wid4pACISf3R4mhxvJRIQCQgCvyES5b8x//1ohznJ8lr44kP0hbq8mxod8kSnspSiiLa8N3FFvf3/FyOszuyfDWawqhGWy79Df2PN0Skfid7AKaw`;
-
 const base64RemovePadding = (str) => {
   return str.replace(/={1,2}$/, '');
 }
 
-const createGoPluginClient = async (handshake, plugin) => {
-  const { certificate } = await pem.createCertificate({
+const base64AddPadding = (str) => {
+  return Buffer.from(str, 'base64').toString('base64');
+};
+
+const createGoPluginClient = async (pluginClient, handshake, plugin) => {
+  const { certificate: rootCert } = await pem.createCertificate({
     selfSigned: true,
-    altNames: ['localhost']
   });
 
   const env = {
     ...process.env,
     // add the magic cookie!
     [handshake.MagicCookieKey]: handshake.MagicCookieValue,
-    ['PLUGIN_CLIENT_CERT']: createEncodedCert(),
+    ['PLUGIN_PROTOCOL_VERSIONS']: handshake.ProtocolVersion,
+    //['PLUGIN_CLIENT_CERT']: rootCert,
   };
   // Ignore STDIN, create a readableStream for STDOUT, and write all STDERR to this process as well.
   const stdio = ['ignore', 'pipe', 'inherit'];
@@ -61,16 +64,44 @@ const createGoPluginClient = async (handshake, plugin) => {
 
   pluginProcess.stdout.setEncoding('utf8');
 
-  const marker = await getConnectionMarker(pluginProcess);
-  console.log(env.PLUGIN_CLIENT_CERT);
-  console.log(marker);
+  const { connectionProtocol, connectionAddress, mTLSCert: rawServerCert = '' } = await getConnectionMarker(pluginProcess);
 
-  const exitCode = await new Promise(res => {
-    pluginProcess.on('close', (exitCode) => {
-      res(exitCode);
-    });
+  const { csr, clientKey } = await pem.createCSR();
+  const { certificate: clientCert, serviceKey } = await pem.createCertificate({
+    certificate: rootCert,
+    csr,
+    clientKey,
   });
-  return exitCode;
+
+  /*const serverCert =
+`-----BEGIN CERTIFICATE-----
+${base64AddPadding(rawServerCert).match(/.{1,64}/g).join('\n')}
+-----END CERTIFICATE-----`;*/
+
+  const connectionURL = 'unix://' + connectionAddress;
+
+  console.log(connectionProtocol);
+  const channelCreds = grpc.credentials.createSsl(
+    Buffer.from(rootCert),
+    //Buffer.from(serviceKey),
+    //Buffer.from(clientCert),
+  );
+  const testCreds = grpc.credentials.createInsecure();
+  testCreds._getConnectionOptions = () => {
+    return {
+      createConnection: (address, options) => {
+        return net.createConnection("/" + address.hostname + address.pathname);
+      },
+    };
+  };
+
+  const client = new pluginClient(connectionURL, testCreds);
+
+  client.GetSchema({}, (a, b) => {
+    for (const attribute of b.provider.block.attributes) {
+      console.log(attribute.name, Buffer.from(attribute.type, 'base64').toString('utf8'));
+    }
+  });
 };
 
 module.exports = {
