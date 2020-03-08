@@ -23,7 +23,7 @@ const createTerraformPluginServer = async () => {
         block: {
           version: 1,
           attributes: [
-            { name: 'dave', type: '' }
+            { name: 'dave', type: Buffer.from(JSON.stringify('string')).toString('base64') }
           ],
           block_types: [],
         },
