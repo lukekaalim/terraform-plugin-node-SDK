@@ -1,7 +1,7 @@
 {
-  "name": "terraform-node-sdk",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@lukekaalim/terraform-plugin-sdk",
+  "version": "0.1.0",
+  "description": "An SDK for developing terraofmr plugins in nodejs",
   "main": "index.js",
   "bin": {
     "tfn": "cli.js",
