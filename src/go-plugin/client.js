@@ -54,24 +54,26 @@ const createGoPluginClient = async (pluginClient, handshake, plugin) => {
     // add the magic cookie!
     [handshake.MagicCookieKey]: handshake.MagicCookieValue,
     ['PLUGIN_PROTOCOL_VERSIONS']: handshake.ProtocolVersion,
-    //['PLUGIN_CLIENT_CERT']: rootCert,
+    ['PLUGIN_CLIENT_CERT']: rootCert,
   };
   // Ignore STDIN, create a readableStream for STDOUT, and write all STDERR to this process as well.
   const stdio = ['ignore', 'pipe', 'inherit'];
   const shell = '/bin/bash';
-
+  console.log('spawn process');
   const pluginProcess = spawn(plugin, [], { env, stdio, shell });
+  console.log('process spawned');
 
   pluginProcess.stdout.setEncoding('utf8');
-
+  console.log('looking for connection marked')
   const { connectionProtocol, connectionAddress, mTLSCert: rawServerCert = '' } = await getConnectionMarker(pluginProcess);
-
+  console.log('connection marker found')
   const { csr, clientKey } = await pem.createCSR();
   const { certificate: clientCert, serviceKey } = await pem.createCertificate({
     certificate: rootCert,
     csr,
     clientKey,
   });
+  console.log('certs created');
 
   /*const serverCert =
 `-----BEGIN CERTIFICATE-----
@@ -96,12 +98,7 @@ ${base64AddPadding(rawServerCert).match(/.{1,64}/g).join('\n')}
   };
 
   const client = new pluginClient(connectionURL, testCreds);
-
-  client.GetSchema({}, (a, b) => {
-    for (const attribute of b.provider.block.attributes) {
-      console.log(attribute.name, Buffer.from(attribute.type, 'base64').toString('utf8'));
-    }
-  });
+  return client;
 };
 
 module.exports = {

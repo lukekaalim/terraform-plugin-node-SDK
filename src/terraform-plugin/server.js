@@ -11,6 +11,12 @@ const terraformPackage = grpc.loadPackageDefinition(terraformProto);
 
 const { createGoPluginServer, InvalidMagicCookieError } = require('../go-plugin/server');
 
+const getValueFromDynamicValue = (dynamicValue) => {
+  if (dynamicValue.msgpack)
+    return msgpack.unpack(dynamicValue.msgpack)
+  throw new Error('I cant handle this!');
+}
+
 const createTerraformPluginServer = async () => {
   try {
     console.log('Creating terraform plugin!');
@@ -28,18 +34,27 @@ const createTerraformPluginServer = async () => {
           block_types: [],
         },
       };
-      const resource_schemas = {
-
+      const resourceSchemas = {
+        'example_cool_resource': {
+          version: 1,
+          block: {
+            version: 1,
+            attributes: [
+              { name: 'dave', type: Buffer.from(JSON.stringify('string')).toString('base64') }
+            ],
+            block_types: [],
+          },
+        }
       };
-      const data_source_schemas = {
+      const dataSourceSchemas = {
 
       };
       const diagnostics = [];
 
       callback(null, {
         provider,
-        resource_schemas,
-        data_source_schemas,
+        resourceSchemas,
+        dataSourceSchemas,
         diagnostics,
       });
     };
@@ -51,9 +66,8 @@ const createTerraformPluginServer = async () => {
         console.log('pack:', msgpack.unpack(call.request.config.msgpack));
   
         callback(null, {
-          prepared_config: {
-            msgpack: Buffer.from(''),
-            json: Buffer.from(''),
+          preparedConfig: {
+            msgpack: call.request.config.msgpack,
           },
           diagnostics: [],
         });
@@ -74,8 +88,15 @@ const createTerraformPluginServer = async () => {
     };
     
     const upgradeResourceState = (call, callback) => {
-      console.log('upgradeResourceState callback!');
-      callback(null, {});
+      const { request: { typeName, version, rawState } } = call;
+      console.log('upgradeResourceState callback!', typeName, version, rawState);
+      const value = JSON.parse(rawState.json.toString('utf-8'))
+      console.log('value', value);
+      callback(null, {
+        upgradedState: {
+          msgpack: Buffer.from(msgpack.pack(value))
+        },
+      });
     };
 
     const configure = (call, callback) => {
@@ -85,17 +106,35 @@ const createTerraformPluginServer = async () => {
 
     const readResource = (call, callback) => {
       console.log('readResource callback!');
-      callback(null, {});
+      const { request: { typeName, currentState } } = call;
+      console.log(call);
+      console.log('reading resource for', typeName, getValueFromDynamicValue(currentState));
+      callback(null, {
+        newState: currentState,
+      });
     };
     
     const planResourceChange = (call, callback) => {
       console.log('planResourceChange callback!');
-      callback(null, {});
+      const { request: { typeName, priorState, proposedNewState, config } } = call;
+      console.log('priorState', getValueFromDynamicValue(priorState));
+      console.log('proposedNewState', getValueFromDynamicValue(proposedNewState));
+      console.log('config', getValueFromDynamicValue(config));
+      callback(null, {
+        plannedState: proposedNewState,
+        requiresReplace: []
+      });
     };
 
     const applyResourceChange = (call, callback) => {
       console.log('applyResourceChange callback!');
-      callback(null, {});
+      const { request: { typeName, priorState, plannedState, config } } = call;
+      console.log('priorState', getValueFromDynamicValue(priorState));
+      console.log('plannedState', getValueFromDynamicValue(plannedState));
+      console.log('config', getValueFromDynamicValue(config));
+      callback(null, {
+        newState: plannedState,
+      });
     };
 
     const importResourceState = (call, callback) => {
@@ -112,7 +151,6 @@ const createTerraformPluginServer = async () => {
       console.log('stop callback!');
       callback(null, {});
     };
-
     const server = await createGoPluginServer(handshake, (server) => {
       server.addService(terraformPackage.tfplugin5.Provider.service, {
         getSchema,

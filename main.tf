@@ -3,5 +3,9 @@ provider "aws" {
   region  = "us-east-1"
 }
 provider "example" {
-  dave = "green"
+  dave = "helloooo !"
+}
+
+resource "example_cool_resource" "my_resource" { 
+  dave = false
 }

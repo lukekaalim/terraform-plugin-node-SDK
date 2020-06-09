@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const { createTerraformPluginClient } = require('./src/terraform-plugin/client');
+const { writeFile } = require('fs').promises;
 
 class UnknownCommandError extends Error {
   unknownCommandText;
@@ -30,7 +31,13 @@ const cli = async (mainCommand, ...otherArgs) => {
         if (!pluginFilename) {
           throw new InvalidPluginFilenameError();
         }
-        await createTerraformPluginClient(pluginFilename);
+        const client = await createTerraformPluginClient(pluginFilename);
+
+        client.GetSchema({}, async (a, b) => {
+          await writeFile('./exampleSchema.json', JSON.stringify(b, null, 2), 'utf-8');
+          //client.close();
+        });
+
         return;
       case undefined:
         throw new NoMainCommandError();

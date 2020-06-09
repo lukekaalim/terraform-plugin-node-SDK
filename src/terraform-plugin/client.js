@@ -11,7 +11,10 @@ const createTerraformPluginClient = async (pluginFilename) => {
 
   const createClient = terraformPackage.tfplugin5.Provider;
 
-  await createGoPluginClient(createClient, handshake, pluginFilename);
+  console.log('go plugin creating')
+  const client = await createGoPluginClient(createClient, handshake, pluginFilename);
+  console.log('go plugin created')
+  return client;
 };
 
 module.exports = {
