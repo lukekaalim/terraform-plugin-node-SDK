@@ -12,6 +12,7 @@ The following example illustrates a fictional plugin that interfaces with a pack
 const {
   createTerraformPlugin,
   createTerraformResource,
+  createTerraformSchema
 } = require('@lukekaalim/terraform-plugin-sdk');
 const { createMyClient } = require('example-package');
 
@@ -50,10 +51,10 @@ const myResource = createTerraformResource(
         cool_factor: resource.coolFactor,
       };
     };
-    const create = async ({ name, coolFactor }) => {
+    const create = async ({ name, cool_factor }) => {
       const resource = new myClient.resource(
         name,
-        coolFactor
+        cool_factor
       );
 
       await myClient.uploadResource(resource);
