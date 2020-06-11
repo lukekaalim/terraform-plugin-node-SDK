@@ -35,7 +35,6 @@ const cli = async (mainCommand, ...otherArgs) => {
 
         client.GetSchema({}, async (a, b) => {
           await writeFile('./exampleSchema.json', JSON.stringify(b, null, 2), 'utf-8');
-          //client.close();
         });
 
         return;
