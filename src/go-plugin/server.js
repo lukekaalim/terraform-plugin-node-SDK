@@ -1,63 +1,65 @@
 const grpc = require('grpc');
+const { EOL } = require('os');
 const pem = require('pem').promisified;
-const { console } = require('../console');
 
-const { addHealthcheckService } = require('../healthcheck/service');
+const { createNullLogger } = require('../logger');
+const { createGRPCServerCredentials, createGRPCServer } = require('../grpc');
+const { base64RemovePadding } = require('./utils');
 
-const base64RemovePadding = (str) => {
-  return str.replace(/={1,2}$/, '');
-}
+const { createHealthcheckService } = require('../healthcheck/service');
 
 class InvalidMagicCookieError extends Error {}
-class InvalidRootCertificate extends Error {}
 
-const createGoPluginServer = async (handshake, addPluginService) => {
+// The Go-Plugin reads lines from STDOUT looking for this message that tells it how to connect
+// to the server.
+// https://github.com/hashicorp/go-plugin/blob/master/client.go#L675
+const createProtocolMessage = (pluginVersion, transmissionType, address, certificate = null) => {
+  return [
+    1,
+    pluginVersion,
+    transmissionType,
+    address,
+    'grpc',
+    certificate,
+  ].filter(Boolean).join('|') + EOL;
+};
+
+const createGoPluginServer = async (handshake, pluginServices = [], logger = createNullLogger()) => {
   // don't print to stdout, print to custom logger implementation
-  grpc.setLogger(console);
+  grpc.setLogger(logger);
+  const healthcheckService = await createHealthcheckService();
+  const services = [healthcheckService, ...pluginServices];
 
   if (process.env[handshake.MagicCookieKey] !== handshake.MagicCookieValue)
     throw new InvalidMagicCookieError();
 
-  const rootCert = process.env['PLUGIN_CLIENT_CERT'];
-  if (!await pem.checkCertificate(rootCert))
-    throw new InvalidRootCertificate();
+  const rootCertificate = process.env['PLUGIN_CLIENT_CERT'];
+  if (!rootCertificate) {
+    // No root certificate provided; run in insecure mode!
+    const server = createGRPCServer('127.0.0.1:52577', services);
+    const message = createProtocolMessage(handshake.ProtocolVersion, 'tcp', `127.0.0.1:52577`);
+    process.stdout.write(message);
+    return server;
+  }
 
-  // we only support grpc
-  const address = '0.0.0.0:50051';
-  const server = new grpc.Server();
-
-  addHealthcheckService(server);
-  addPluginService(server);
-
-  const { csr, clientKey } = await pem.createCSR();
-  const { certificate: serverCert, serviceKey } = await pem.createCertificate({
-    certificate: rootCert,
-    csr,
+  // Create a Certificate Signing Request, with a randomly generated secret key (clientKey)
+  const { csr: signingRequest, clientKey } = await pem.createCSR();
+  // And then use the Root Certificate to sign it, creating the certificate for our server
+  const { certificate, serviceKey } = await pem.createCertificate({
+    certificate: rootCertificate,
+    csr: signingRequest,
     clientKey,
   });
-  
-  const grpcServerCreds = grpc.ServerCredentials.createSsl(Buffer.from(rootCert), [
-    {
-      private_key: Buffer.from(serviceKey),
-      cert_chain: Buffer.from(serverCert),
-    }
-  ]);
-  server.bind(address, grpcServerCreds);
-  server.start();
-
-  process.stdout.write([
-    1,
+  // Use generated server certificates to run in secure mode
+  const credentials = createGRPCServerCredentials(rootCertificate, certificate, serviceKey);
+  const server = createGRPCServer('127.0.0.1:52577', services, credentials);
+  const message = createProtocolMessage(
     handshake.ProtocolVersion,
     'tcp',
-    address,
-    'grpc',
-    base64RemovePadding(serverCert.split('\n').slice(1, -1).join('')),
-  ].join('|'))
-  process.stdout.write('\n');
-
-  console.log(base64RemovePadding(serverCert.split('\n').slice(1, -1).join('')));
-  console.log(serverCert);
-
+    `127.0.0.1:52577`,
+    base64RemovePadding(certificate.split('\n').slice(1, -1).join(''))
+  );
+  process.stdout.write(message);
   return server;
 };
 

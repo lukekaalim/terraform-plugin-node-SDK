@@ -29,7 +29,9 @@ const myProvider = createTerraformProvider(
   myProviderSchema,
   async ({ secret_api_token }) => {
     const myClient = await createMyClient(secret_api_token);
-    return myClient;
+    return {
+      client
+    };
   }
 );
 
@@ -44,8 +46,8 @@ const myResource = createTerraformResource(
   // The myClient argument is the return value of the
   // provider's configuration function
   (myClient) => {
-    const read = async ({ name }) => {
-      const resource = await myClient.getByName(name);
+    const read = async ({ client }, { name }) => {
+      const resource = await client.getByName(name);
       return {
         name: resource.name,
         cool_factor: resource.coolFactor,

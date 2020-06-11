@@ -1,4 +1,2 @@
 #!/usr/bin/env node
-const { createTerraformPluginServer } = require('./src/terraform-plugin/server');
-
-createTerraformPluginServer();
+require('./src/example-plugin');

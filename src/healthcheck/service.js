@@ -1,35 +1,35 @@
 const protoLoader = require('@grpc/proto-loader');
 const grpc = require('grpc');
 const path = require('path');
-const { console } = require('../console');
 
-const healthcheckProto = protoLoader.loadSync(path.join(__dirname, './healthcheck.proto'));
-const healthCheckPackage = grpc.loadPackageDefinition(healthcheckProto);
+const { createGRPCService } = require('../grpc/service');
 
-const addHealthcheckService = (server) => {
+const healthcheckProtoFilePath = path.join(__dirname, './healthcheck.proto');
+
+const createHealthcheckService = async () => {
+  const healthcheckProto = await protoLoader.load(healthcheckProtoFilePath);
+  const healthCheckPackage = grpc.loadPackageDefinition(healthcheckProto);
+
   const check = (call, callback) => {
-    console.log('check', call);
     callback(null, { status: 'SERVING' });
   };
 
   const watch = (stream) => {
-    console.log('watch', stream);
-    stream.write({ status: 'SERVING' });
-    stream.write({ status: 'SERVING' });
-    stream.write({ status: 'SERVING' });
     stream.write({ status: 'SERVING' });
     stream.end();
   };
 
-  server.addService(
+  const implementation = {
+    check,
+    watch
+  };
+
+  return createGRPCService(
     healthCheckPackage.grpc.health.v1.Health.service,
-    {
-      check,
-      watch
-    }
+    implementation
   );
 };
 
 module.exports = {
-  addHealthcheckService
+  createHealthcheckService
 };
