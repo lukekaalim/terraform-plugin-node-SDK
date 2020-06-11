@@ -54,7 +54,7 @@ const createGoPluginClient = async (pluginClient, handshake, plugin) => {
     // add the magic cookie!
     [handshake.MagicCookieKey]: handshake.MagicCookieValue,
     ['PLUGIN_PROTOCOL_VERSIONS']: handshake.ProtocolVersion,
-    ['PLUGIN_CLIENT_CERT']: rootCert,
+    //['PLUGIN_CLIENT_CERT']: rootCert,
   };
   // Ignore STDIN, create a readableStream for STDOUT, and write all STDERR to this process as well.
   const stdio = ['ignore', 'pipe', 'inherit'];
@@ -65,7 +65,7 @@ const createGoPluginClient = async (pluginClient, handshake, plugin) => {
 
   pluginProcess.stdout.setEncoding('utf8');
   console.log('looking for connection marked')
-  const { connectionProtocol, connectionAddress, mTLSCert: rawServerCert = '' } = await getConnectionMarker(pluginProcess);
+  const { connectionType, connectionProtocol, connectionAddress, mTLSCert: rawServerCert = '' } = await getConnectionMarker(pluginProcess);
   console.log('connection marker found')
   const { csr, clientKey } = await pem.createCSR();
   const { certificate: clientCert, serviceKey } = await pem.createCertificate({
@@ -74,13 +74,18 @@ const createGoPluginClient = async (pluginClient, handshake, plugin) => {
     clientKey,
   });
   console.log('certs created');
+  console.log(connectionType, connectionAddress);
 
-  /*const serverCert =
-`-----BEGIN CERTIFICATE-----
-${base64AddPadding(rawServerCert).match(/.{1,64}/g).join('\n')}
------END CERTIFICATE-----`;*/
+  const getConnectionURL = (transportMethod) => {
+    switch (transportMethod) {
+      case 'tcp':
+        return connectionAddress;
+      case 'unix':
+        return 'unix://' + connectionAddress;
+    }
+  };
 
-  const connectionURL = 'unix://' + connectionAddress;
+  const connectionURL = getConnectionURL(connectionType)
 
   console.log(connectionProtocol);
   const channelCreds = grpc.credentials.createSsl(
