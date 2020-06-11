@@ -1,6 +1,6 @@
 {
   "name": "@lukekaalim/terraform-plugin-sdk",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "An SDK for developing terraform plugins",
   "main": "index.js",
   "bin": {
