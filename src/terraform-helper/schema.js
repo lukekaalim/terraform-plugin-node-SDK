@@ -1,10 +1,12 @@
-const createAttribute = (name, type = 'string', description = '', attributeFlags = {}) => {
-  const {
-    required = false,
-    optional = false,
-    computed = false,
-    sensitive = false,
-  } = attributeFlags;
+const createAttribute = ({
+  name,
+  type = 'string',
+  description = '',
+  required = false,
+  optional = true,
+  computed = false,
+  sensitive = false,
+}) => {
 
   return {
     name,
@@ -19,7 +21,7 @@ const createAttribute = (name, type = 'string', description = '', attributeFlags
   };
 };
 
-const createSchema = (version, attributes) => {
+const createSchema = (attributes, version = 1) => {
   return {
     version,
     attributes,

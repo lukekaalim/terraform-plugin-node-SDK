@@ -159,7 +159,8 @@ const createTerraformService = async ({
     }),
 
     stop: createGRPCImplementation(async () => {
-      const { error = null } = await stop() || {};
+      console.log('Asking to stop');
+      process.exit(0)
       return {
         Error: error,
       };

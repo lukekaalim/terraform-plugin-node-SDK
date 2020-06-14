@@ -2,27 +2,21 @@ const { createGoPluginServer } = require('../go-plugin');
 const { createTerraformService, handshake } = require('../terraform-plugin');
 const { createFileLogger, setGlobalConsole } = require('../logger');
 
-const resourcesToSchemas = (resources) => {
-  const resourceEntries = resources.map(resource => {
-    return [resource.name, {
-      block: resource.schemaBlock,
-      version: resource.version
-    }];
-  });
-  
-  const resourceSchemas = Object.fromEntries(resourceEntries);
-  return resourceSchemas;
-};
+const resourceToSchema = (resource) => ({
+  version: resource.version,
+  block: resource.schema,
+});
 
 const createPlugin = (provider, resources) => {
-  let providerResult = null;
+  let configuredProvider = null;
 
-  const resourceSchemas = resourcesToSchemas(resources);
+  const resourceMap = new Map(resources.map((resource) => [resource.name, resource]));
+  const resourceSchemas = Object.fromEntries(resources.map((resource) => [resource.name, resourceToSchema(resource)]));
 
   const schema = {
     provider: {
       version: provider.version,
-      block: provider.schemaBlock
+      block: provider.schema
     },
     resourceSchemas,
     dataSourceSchemas: {}
@@ -32,35 +26,48 @@ const createPlugin = (provider, resources) => {
     return schema;
   };
 
-  const validateResourceTypeConfig = async (type, config) => {
-    return;
-  };
-
   const validateDataSourceConfig = async (type, config) => {
     return;
   };
 
   const prepareProviderConfig = async (config) => {
-    return { preparedConfig: config };
+    const preparedConfig = provider.prepare(config);
+    return { preparedConfig };
   };
 
-  const configure = async (config) => {
+  const configure = async (terraformVersion, config) => {
+    configuredProvider = provider.configure(config, terraformVersion);
     return;
   };
 
-  const readResource = async (typeName, state) => {
-    return { newState: state };
+  const validateResourceTypeConfig = async (typeName, config) => {
+    const resource = resourceMap.get(typeName);
+    const diagnostics = await resource.validate(configuredProvider, config);
+    return { diagnostics };
   };
-  const planResourceChange = async (typeName, config, priorState, proposedNewState) => {
-    return { plannedState: proposedNewState, requiresReplace: [] };
+
+  const readResource = async (typeName, state) => {
+    const resource = resourceMap.get(typeName);
+    const newState = await resource.read(configuredProvider, state);
+    return { newState };
+  };
+  const planResourceChange = async (typeName, config, currentState, proposedNewState) => {
+    const resource = resourceMap.get(typeName);
+    const plannedState = await resource.plan(configuredProvider, config, currentState, proposedNewState);
+    return { plannedState, requiresReplace: [] };
   };
   const applyResourceChange = async (typeName, config, currentState, plannedState) => {
-    return { newState: plannedState };
+    const resource = resourceMap.get(typeName);
+    const newState = await resource.apply(configuredProvider, config, currentState, plannedState);
+    return { newState };
   };
   const upgradeResourceState = async (typeName, version, state) => {
-    return { upgradedState: state };
+    const resource = resourceMap.get(typeName);
+    const upgradedState = await resource.upgrade(configuredProvider, version, state);
+    return { upgradedState };
   };
   const importResourceState = async (typeName, id) => {
+    const resource = resourceMap.get(typeName);
     return { importedResources: [] };
   };
   const readDataSource = async (typeName, config) => {
@@ -71,8 +78,7 @@ const createPlugin = (provider, resources) => {
   };
 
   const run = async () => {
-    const logger = createFileLogger('./tf.log');
-    setGlobalConsole(logger);
+    const logger = createFileLogger('./grpc.log')
     try {
       const terraformService = await createTerraformService({
         getSchema,
@@ -90,7 +96,7 @@ const createPlugin = (provider, resources) => {
       });
       const pluginServer = createGoPluginServer(handshake, [terraformService], logger);
     } catch (error) { 
-      logger.error(error);
+      console.error(error);
     }
   };
 

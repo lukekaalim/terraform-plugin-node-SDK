@@ -2,19 +2,17 @@
   "name": "@lukekaalim/terraform-plugin-sdk",
   "version": "1.0.0",
   "description": "An SDK for developing terraform plugins",
-  "main": "index.js",
+  "main": "src/terraform-helper.js",
   "bin": {
-    "tfn": "cli.js",
-    "terraform-provider-example": "terraform-provider-example"
+    "tfn": "cli.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@grpc/grpc-js": "^0.7.0",
     "@grpc/proto-loader": "^0.5.3",
-    "google-protobuf": "^3.11.4",
     "grpc": "^1.24.2",
-    "msgpack": "^1.0.3",
+    "msgpack-lite": "^0.1.26",
     "pem": "^1.14.4"
   }
 }

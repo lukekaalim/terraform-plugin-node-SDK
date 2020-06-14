@@ -34,6 +34,13 @@ const cli = async (mainCommand, ...otherArgs) => {
         const client = await createTerraformPluginClient(pluginFilename);
 
         client.GetSchema({}, async (a, b) => {
+          const schemaList = Object.entries(b.resourceSchemas);
+          for (const [schemaName, { block }] of schemaList) {
+            for (const { name, type: encodedType } of block.attributes) {
+              const type = JSON.parse(encodedType.toString('utf-8'));
+              console.log(schemaName, name, type);
+            }
+          }
           await writeFile('./exampleSchema.json', JSON.stringify(b, null, 2), 'utf-8');
         });
 

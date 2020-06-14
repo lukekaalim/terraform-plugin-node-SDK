@@ -1,8 +1,22 @@
-const { unpack, pack } = require('msgpack');
+const { encode, decode, createCodec } = require('msgpack-lite');
+
+class Unknown {}
+
+function unknownPacker() {
+  return encode([0]);
+}
+
+function unknownUnpacker() {
+  return new Unknown();
+}
+
+const codec = createCodec();
+codec.addExtPacker(0, Unknown, unknownPacker);
+codec.addExtUnpacker(0, unknownUnpacker);
 
 const setPackedDynamicValue = (value) => {
   return {
-    msgpack: pack(value),
+    msgpack: encode(value, { codec }),
     json: null,
   };
 };
@@ -17,7 +31,7 @@ const setJSONDynamicValue = (value) => {
 const getDynamicValue = (dynamicValue) => {
   const { msgpack: packedValue, json: jsonValue } = dynamicValue;
   if (packedValue)
-    return unpack(packedValue)
+    return decode(packedValue, { codec })
   if (jsonValue)
     return JSON.parse(jsonValue.toString('utf-8'));
 
@@ -25,6 +39,7 @@ const getDynamicValue = (dynamicValue) => {
 };
 
 module.exports = {
+  Unknown,
   setPackedDynamicValue,
   setJSONDynamicValue,
   getDynamicValue,
