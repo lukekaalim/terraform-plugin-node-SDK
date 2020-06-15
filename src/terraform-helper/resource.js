@@ -1,25 +1,43 @@
-const createResource = ({
-  name,
-  version = 1,
-  schema,
-  read = (provider, state) => state,
-  plan = (provider, config, oldState, proposedState) => proposedState,
-  apply = (provider, config, oldState, plannedState) => ({ newState: plannedState, requiresReplace: [] }),
-  validate = (provider, plannedState) => null,
-  upgrade = (provider, version, state) => state,
-  // import is a reserved word in javascript
-  import: import2 = (provider, id) => [],
-}) => ({
-  name,
-  version,
-  schema,
-  read,
-  plan,
-  apply,
-  validate,
-  upgrade,
-  import: import2,
-});
+const { createSchema } = require('./schema');
+
+const defaultResource = {
+  version: 1,
+  block: createSchema({}),
+  validate(provider, config) {
+    return;
+  },
+  read(provider, state) {
+    return state;
+  },
+  plan(provider, state, config, plan) {
+    return plan;
+  },
+  create(provider, config) {
+    return config;
+  },
+  update(provider, state, config) {
+    return config;
+  },
+  delete(provider, state) {
+    return;
+  },
+  upgrade(provider, version, state) {
+    return state;
+  },
+  import(provider, id) {
+    return [];
+  }
+};
+
+const createResource = (resource) => {
+  if (!resource.name)
+    throw new Error('Resource needs name');
+  
+  return {
+    ...defaultResource,
+    ...resource,
+  };
+};
 
 module.exports = {
   createResource,
