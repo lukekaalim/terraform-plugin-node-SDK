@@ -33,7 +33,7 @@ const provider = sdk.createProvider({
 ## `createSchema`
 ```js
 const sdk = require('@lukekaalim/terraform-plugin-sdk');
-const provider = sdk.createSchema({
+const schema = sdk.createSchema({
   [attributeName]: { // [string]: Attribute
     type, // SchemaType
     optional,// ? bool
@@ -47,7 +47,7 @@ const provider = sdk.createSchema({
 ## `createResource`
 ```js
 const sdk = require('@lukekaalim/terraform-plugin-sdk');
-const provider = sdk.createResource({
+const resource = sdk.createResource({
   version, // number
   block, // ? Schema
   validate, // ? (ConfiguredProvider, Config) => null
