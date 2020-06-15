@@ -1,13 +1,13 @@
-## Cat Guide
+## Creating a Plugin
 
 ### Introduction
-In this guide, we walk through the creation of a terraform provider that can interact with a fictional api that can create cats.
+In this guide, we walk through the creation of a terraform plugin that can interact with a fictional api that can create cats.
 
 ### Plugin declaration
 
-To build a plugin, you need at least a provider. But to do something useful, you also probably want at least one resource.
+To build a plugin, you only need a provider. But to do something useful, you also probably want at least one resource.
 
-In this example, we'll build a plugin that manages an Example CRUD API that manages cats called the Cat API (`@example/cat-api`). We use this fictional api by instantiation a CatClient from it's npm package with a token and id, and the use it's promise-based methods to create, update, or destroy (oh no!) cats.
+In this example, we'll build a plugin that manages ans CRUD API that manages cats called the Cat API (with a handy client library at `@example/cat-api`). We use this fictional api by instantiation a CatClient from it's npm package with a token and id, and the use it's promise-based methods to create, read, update, or destroy (oh no!) cats.
 
 We'll split this plugin into three files, one with the provider declaration, one with a cat resource declaration, and finally one with the plugin that combines them all.
 
@@ -20,20 +20,21 @@ Our fictional package requires an ID and a token, so we define them as part of t
 const {
   createSchema,
   createAttribute,
-  createProvider
+  createProvider,
+  types,
 } = require('@lukekaalim/terraform-plugin-sdk');
 const { CatClient } = require('@example/cat-api');
 
 // We can't interact with the cat api without a token or
 // id, so we include them in the schema
-const catProviderSchema = createSchema({
-  'token': createAttribute('string'),
-  'id': createAttribute('string'),
+const schema = createSchema({
+  'token': { type: types.string },
+  'id': { type: types.string },
 });
 
 const catProvider = createProvider({
-  name: 'cat_api',
-  schema: catProviderSchema,
+  name: 'cat-api',
+  block: schema,
   configure(config) {
     const { token, id } = config;
     const catClient = new CatClient(
@@ -57,7 +58,7 @@ module.exports = {
 When you create this provider in terraform, it will look like this:
 
 ```hcl
-provider "cat_api" {
+provider "cat-api" {
   token = "my-super-secret-token"
   id = "my-personal-id"
 }
@@ -69,8 +70,8 @@ provider "cat_api" {
 // resources.js
 const {
   createSchema,
-  createAttribute,
   createResource,
+  DiagnosticError,
 } = require('@lukekaalim/terraform-plugin-sdk');
 
 const kittySchema = createSchema({
@@ -87,35 +88,39 @@ const kittySchema = createSchema({
   'id': createAttribute('number', { computed: true })
 });
 
-const kittyToSchema = kitty => ({
-  name: kitty.name,
-  color: kitty.color,
-  cuteness: kitty.cuteness,
-  friendliness: kitty.friendliness,
-  id: kitty.id,
-});
+// our fictional kitty resource has a similar structure
+// to our schema
+// type Kitty = {
+//    name: string,
+//    color: string,
+//    cuteness: number,
+//    friendliness: number,
+//    id: number,
+// }
 
 const kittyResource = createResource({
   name: 'kitty',
-  schema: kittySchema,
-  async read(provider, config) {
-    const { catClient } = provider;
-    const kitty = await catClient.getKitty(config.id);
-    return kittyToSchema(kitty);
+  block: kittySchema,
+  plan({ catClient }, state, config, plan) {
+    return {
+      // here we can implement the defaults
+      color: 'brown',
+      ...plan,
+    };
   },
-  async create(provider, config) {
-    const { catClient } = provider;
-    const kitty = await catClient.createKitty({
+  async read({ catClient }, config) {
+    return await catClient.getKitty(config.id);
+  },
+  async create({ catClient }, config) {
+    return await catClient.createKitty({
       name: config.name,
-      color: config.color || 'brown',
+      color: config.color,
       cuteness: config.cuteness,
       friendliness: config.friendliness,
     });
-    return kittyToSchema(kitty);
   },
-  async update(provider, state, config) {
-    const { catClient } = provider;
-    const kitty = await catClient.updateKitty(
+  async update({ catClient }, state, config) {
+    return await catClient.updateKitty(
       state.id,
       {
         name: config.name,
@@ -124,11 +129,17 @@ const kittyResource = createResource({
         friendliness: config.friendliness,
       }
     );
-    return kittyToSchema(kitty);
   },
   async destroy(provider, state) {
-    throw new Error('Nobody destroys kitty!');
-    // You probably got the picture
+    // Though normally you'd want a tear down step,
+    // our cat api doesnt allow it, so you can throw a
+    // DiagnosticError which will be send to terraform.
+    throw new DiagnosticError(
+      'Nobody destroys kitty!',
+      '.',
+      'ERROR',
+      'You cannot destroy a kitty. It\'s just not done.'
+    );
   }
 });
 
@@ -136,6 +147,19 @@ module.exports = {
   kittyResource,
 }
 ```
+Your kitty resource will look like:
+```hcl
+resource "cat-api_kitty" "myKitty" {
+  name = 'mr spekles'
+  color = 'white with light brown splotches'
+  friendliness = 100
+  cuteness = 10000
+}
+```
+
+### Plugin
+
+And finally, we can defined a plugin that ties the provider and resource together, providing the methods to start our plugin instance.
 ```js
 // plugin.js
 const { createPlugin } = require('@lukekaalim/terraform-plugin-sdk');
@@ -149,3 +173,8 @@ module.exports = {
   catPlugin,
 };
 ```
+
+And with that, our Cat-API plugin is done!
+
+### Next Steps
+Having finished our plugin, you might be interested in [distributing and deploying](./deploy.md) your plugin to users, or [testing your plugin](./test.md).
