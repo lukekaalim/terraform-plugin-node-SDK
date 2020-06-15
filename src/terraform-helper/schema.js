@@ -1,34 +1,37 @@
-const createAttribute = ({
-  name,
-  type = 'string',
-  description = '',
-  required = false,
-  optional = true,
-  computed = false,
-  sensitive = false,
-}) => {
+// https://github.com/zclconf/go-cty/blob/master/docs/types.md
+const types = {
+  string: 'string',
+  number: 'number',
+  bool: 'bool',
+  object: propertyMap => [
+    'object',
+    propertyMap,
+  ],
+  list: elementType => [
+    'list',
+    elementType,
+  ]
+}
 
-  return {
+const createSchema = (attributeMap, version = 1) => {
+  const attributeEntries = Object.entries(attributeMap);
+  const attributes = attributeEntries.map(([name, attribute]) => ({
     name,
-    // https://github.com/zclconf/go-cty/blob/master/docs/types.md
-    type: Buffer.from(JSON.stringify(type)),
-    description,
-  
-    required,
-    optional,
-    computed,
-    sensitive,
-  };
-};
+    type: Buffer.from(JSON.stringify(attribute.type)),
+    description: attribute.description,
 
-const createSchema = (attributes, version = 1) => {
+    required: attribute.required,
+    optional: attribute.optional,
+    computed: attribute.computed,
+    sensitive: attribute.sensitive,
+  }));
   return {
     version,
     attributes,
   };
-};
+}
 
 module.exports = {
   createSchema,
-  createAttribute,
+  types,
 };
