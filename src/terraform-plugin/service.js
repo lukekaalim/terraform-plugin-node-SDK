@@ -36,9 +36,6 @@ const createTerraformService = async ({
 
   //! (typeName, config) => { state, diagnostics }
   readDataSource,
-
-  //! () => { error }
-  stop,
 }) => {
   const terraformProto = await protoLoader.load(terraformProtoFilePath);
   const terraformPackage = grpc.loadPackageDefinition(terraformProto);
@@ -160,10 +157,7 @@ const createTerraformService = async ({
 
     stop: createGRPCImplementation(async () => {
       console.log('Asking to stop');
-      process.exit(0)
-      return {
-        Error: error,
-      };
+      return {};
     })
   };
 
