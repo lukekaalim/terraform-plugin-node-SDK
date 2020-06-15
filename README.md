@@ -3,108 +3,25 @@ This project is an npm package that provides tools for building Terraform Plugin
 
 Terraform plugins can be used to leverage and extend terraform capabilities, allowing new providers and resource types.
 
-## Example
+## What's a Plugin?
+All of terraform's ability to interact with API's comes from [_plugins_](https://www.terraform.io/docs/plugins/index.html). Terraform manages the configuration, orchestration, and dependency resolution on the resources you create, but it's a terraform plugin that allows it to interact with the world.
 
-The following example illustrates a fictional plugin that interfaces with a package called "example-package". In the example, we define a provider and require a secret API Token to be passed to the provider.
+A plugin composes of an _executable file_ that perform a hashicorp/go-plugin handshake and then opens up a GRPC server.
 
-```js
-// /home/projects/myPlugin/main.js
-const {
-  createTerraformPlugin,
-  createTerraformResource,
-  createTerraformSchema
-} = require('@lukekaalim/terraform-plugin-sdk');
-const { createMyClient } = require('example-package');
+That GRPC server then implements the terraform-plugin prototypes, providing a Schema (which is a declaration of the provider and all resources that provider manages) and some functions that terraform calls to create or apply terraform plans.
 
-// The 'schema' defined what the shape of the terraform block will be.
-const myProviderSchema = createTerraformSchema({
-  'secret_api_token': 'string',
-});
+The Terraform Plugin SDK allows you to create plugins declaratively, allowing you create a plugin without needing to perform all the boilerplate work.
 
-// A plugin can export a provider, which is given a change
-// to configure itself and create a shared client that will
-// be provided to resources
-const myProvider = createTerraformProvider(
-  'my_provider',
-  myProviderSchema,
-  async ({ secret_api_token }) => {
-    const myClient = await createMyClient(secret_api_token);
-    return {
-      client
-    };
-  }
-);
+## Why create Plugins?
+Terraform has a wealth of plugins available to it already created that allow you to manage a vast amount of resources in an interconnected graph, but it doesn't have all of them.
 
-const myResourceSchema = createTerraformSchema({
-  'cool_factor': 'number',
-  'name': 'string',
-});
+When using terraform, you may wish to:
+- Create resources that talk to a proprietary or internal API
+- Create resource for an API that doesn't have a provider yet
+- Manage a resource for an existing provider that doesn't provide certain functionality
+- Disagree with the implementation of an API and want to give yourself greater flexibility
+- Model existing build scripts a declarative structures?
 
-const myResource = createTerraformResource(
-  'my_resource',
-  myResourceSchema,
-  // The myClient argument is the return value of the
-  // provider's configuration function
-  (myClient) => {
-    const read = async ({ client }, { name }) => {
-      const resource = await client.getByName(name);
-      return {
-        name: resource.name,
-        cool_factor: resource.coolFactor,
-      };
-    };
-    const create = async ({ name, cool_factor }) => {
-      const resource = new myClient.resource(
-        name,
-        cool_factor
-      );
+## Documentation
 
-      await myClient.uploadResource(resource);
-
-      return {
-        name: resource.name,
-        'cool_factor': resource.coolFactor,
-      };
-    };
-    // you can implement interfaces here that terraform
-    // will call to provide updates or creations
-    // of resources.
-    return {
-      read,
-      create
-    };
-  }
-);
-
-// A plugin has a name and a version, and can export multiple resources
-const plugin = createTerraformPlugin(
-  'myPlugin',
-  '1.0.1', 
-  myProvider,
-  [
-    myResource
-  ]
-);
-
-plugin.run();
-```
-
-```sh
-#!/usr/bin/env sh
-# /home/projects/terraform-config/my_provider
-# marked with executable permissions
-
-node /home/projects/myPlugin/main.js
-```
-
-```terraform
-// /home/projects/terraform-config/main.tf
-provider "my_provider" {
-  secret_api_token = "12345-6789"
-}
-
-resource "my_provider_my_resource" "example_resource" { 
-  name = "This value will be input to the function"
-  cool_factor = 1000
-}
-```
+Take a look at our [guides](docs/guides.md), our [api](docs/api.md) or some [examples](examples/readme.md).
