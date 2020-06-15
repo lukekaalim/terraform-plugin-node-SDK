@@ -1,26 +1,22 @@
-const { createProvider, createSchema, createAttribute } = require('@lukekaalim/terraform-plugin-sdk');
+const { createProvider, createSchema, types } = require('@lukekaalim/terraform-plugin-sdk');
 const { google } = require('googleapis');
 
-const tokenType = [
-  'object',
-  {
-    access_token: 'string',
-    refresh_token: 'string',
-    scope: 'string',
-    token_type: 'string',
-    expiry_date: 'number',
-  }
-];
-
-const schema = createSchema([
-  createAttribute({ name: 'client_secret', required: true }),
-  createAttribute({ name: 'client_id', required: true }),
-  createAttribute({ name: 'redirect_uris', type: ['list', 'string'], required: true }),
-  createAttribute({ name: 'token', type: tokenType, required: true }),
-]);
+const googleDriveSchema = createSchema({
+  client_secret: { type: types.string },
+  client_id: { type: types.string },
+  redirect_uris: { type: types.list(types.string) },
+  token: { type: types.object({
+    access_token: types.string,
+    refresh_token: types.string,
+    scope: types.string,
+    token_type: types.string,
+    expiry_date: types.number,
+  }) },
+});
 
 const googleDriveProvider = createProvider({
-  schema,
+  name: 'google-drive',
+  schema: googleDriveSchema,
   configure({ client_secret, client_id, redirect_uris, token }) {
 
     const auth = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
