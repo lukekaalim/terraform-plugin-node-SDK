@@ -46,12 +46,13 @@ const createDiagnosticsFromError = (error) => {
     return error.diagnostics
       .map(createDiagnosticsFromError)
       .reduce((acc, curr) => [...acc, ...curr], []);
-  return createDiagnostic(
+  
+  return [createDiagnostic(
     '.',
     'Unknown error type',
-    'The plugin threw an unexpected error',
+    `The plugin threw an unexpected error: ${error.stack}`,
     'ERROR'
-  );
+  )];
 };
 
 module.exports = {
