@@ -8,16 +8,6 @@ const mapEntryValues = (array, mapFunc) => {
   return array.map(([name, value]) => [name, mapFunc(value)]);
 };
 
-// Terraform has a special value for 'computed' resources, the 'unknown' value.
-// Ensure that attributes that are not populated are considered 'unknown' if they
-// are computed.
-const getUnknownState = (resource) => {
-  const computedAttributes = resource.block.attributes.filter(attribute => attribute.computed);
-  const unknownEntries = computedAttributes.map(attribute => [attribute.name, createUnknownValue()]);
-  const unknownState = Object.fromEntries(unknownEntries);
-  return unknownState;
-};
-
 // Ensure that only attributes listed in the resource are part of the
 // state sent to terraform
 const filterStateByAttributes = (resource, state) => {
@@ -87,12 +77,30 @@ const createPlugin = (provider, resources) => {
   const planResourceChange = async (typeName, config, currentState, proposedNewState) => {
     const resource = resourceMap.get(typeName);
     try {
-      const plannedState = {
-        ...getUnknownState(resource),
-        ...await resource.plan(configuredProvider, currentState, config, proposedNewState),
-      };
+      const computedAttributeNames = resource.block.attributes
+        .filter(attribute => attribute.computed)
+        .map(attribute => attribute.name);
+
+      const plannedState = await resource.plan(configuredProvider, currentState, config, proposedNewState);
+      const plannedAttributes = Object.entries(plannedState);
+
+      // Terraform has a special value for 'computed' resources, the 'unknown' value.
+      // Ensure that attributes that are not populated are considered 'unknown' if they
+      // are computed.
+      const plannedAndUnknownAttributes = plannedAttributes.map(([attributeName, attributeValue]) => {
+        if (
+          (attributeValue === null ||  attributeValue === undefined)
+          && computedAttributeNames.includes(attributeName)
+        ) {
+          return [attributeName, createUnknownValue()];
+        }
+        return [attributeName, attributeValue];
+      });
+
+      const plannedAndUnknownState = Object.fromEntries(plannedAndUnknownAttributes);
+
       return {
-        plannedState: filterStateByAttributes(resource, plannedState),
+        plannedState: filterStateByAttributes(resource, plannedAndUnknownState),
         requiresReplace: []
       };
     } catch (error) {

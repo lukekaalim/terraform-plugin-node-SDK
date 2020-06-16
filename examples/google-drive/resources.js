@@ -34,7 +34,7 @@ const fileResource = createResource({
   },
   async create({ drive }, config) {
     const { data: file } = await drive.files.create({
-      resource: { name: plan.name }
+      resource: { name: config.name }
     });
     return file;
   },
