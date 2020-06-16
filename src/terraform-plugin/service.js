@@ -1,5 +1,5 @@
 const protoLoader = require('@grpc/proto-loader');
-const grpc = require('grpc');
+const grpc = require('@grpc/grpc-js');
 const path = require('path');
 
 const { createNullLogger } = require('../logger');

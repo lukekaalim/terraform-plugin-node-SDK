@@ -1,4 +1,4 @@
-const { Server, ServerCredentials } = require('grpc');
+const { Server, ServerCredentials } = require('@grpc/grpc-js');
 
 const createGRPCServerCredentials = (rootPEMCertificate, serverPEMCertificate, serverPrivateKey) => {
   const keyCertPair = {

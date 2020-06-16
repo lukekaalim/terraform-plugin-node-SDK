@@ -1,13 +1,16 @@
-const { Server, ServerCredentials } = require('grpc');
+const { Server, ServerCredentials } = require('@grpc/grpc-js');
 
-const createGRPCServer = (address, services = [], credentials = ServerCredentials.createInsecure()) => {
+const createGRPCServer = async (address, services = [], credentials = ServerCredentials.createInsecure()) => {
   const server = new Server();
 
   for (const { definition, implementation } of services) {
     server.addService(definition, implementation);
   }
 
-  const port = server.bind(address, credentials);
+  const port = await new Promise((res, rej) => {
+    const callback = (error, port) => error ? rej(error) : res(port);
+    server.bindAsync(address, credentials, callback);
+  });
   server.start();
 
   const shutdown = () => {

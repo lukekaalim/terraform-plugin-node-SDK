@@ -1,4 +1,4 @@
-const grpc = require('grpc');
+const grpc = require('@grpc/grpc-js');
 const { EOL } = require('os');
 const pem = require('pem').promisified;
 
@@ -25,6 +25,10 @@ const createProtocolMessage = (pluginVersion, transmissionType, address, certifi
 };
 
 const createGoPluginServer = async (handshake, pluginServices = [], logger = createNullLogger()) => {
+  const path = `/tmp/terraform-${Math.floor(Math.random() * 100000)}.sock`;
+  const protocol = 'unix';
+  const url = `${protocol}://${path}`;
+  
   // don't print to stdout, print to custom logger implementation
   grpc.setLogger(logger);
   const healthcheckService = await createHealthcheckService();
@@ -36,8 +40,8 @@ const createGoPluginServer = async (handshake, pluginServices = [], logger = cre
   const rootCertificate = process.env['PLUGIN_CLIENT_CERT'];
   if (!rootCertificate) {
     // No root certificate provided; run in insecure mode!
-    const server = createGRPCServer('127.0.0.1:52577', services);
-    const message = createProtocolMessage(handshake.ProtocolVersion, 'tcp', `127.0.0.1:52577`);
+    const server = await createGRPCServer(url, services);
+    const message = createProtocolMessage(handshake.ProtocolVersion, address, path);
     process.stdout.write(message);
     return server;
   }
@@ -52,11 +56,11 @@ const createGoPluginServer = async (handshake, pluginServices = [], logger = cre
   });
   // Use generated server certificates to run in secure mode
   const credentials = createGRPCServerCredentials(rootCertificate, certificate, serviceKey);
-  const server = createGRPCServer('127.0.0.1:52577', services, credentials);
+  const server = await createGRPCServer(url, services, credentials);
   const message = createProtocolMessage(
     handshake.ProtocolVersion,
-    'tcp',
-    `127.0.0.1:52577`,
+    protocol,
+    path,
     base64RemovePadding(certificate.split('\n').slice(1, -1).join(''))
   );
   process.stdout.write(message);

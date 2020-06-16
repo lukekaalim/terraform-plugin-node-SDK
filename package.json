@@ -6,12 +6,11 @@
   "bin": {
     "tfn": "cli.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Luke Kaalim (luke@kaal.im)",
+  "license": "MIT",
   "dependencies": {
-    "@grpc/grpc-js": "^0.7.0",
-    "@grpc/proto-loader": "^0.5.3",
-    "grpc": "^1.24.2",
+    "@grpc/grpc-js": "^1.0.5",
+    "@grpc/proto-loader": "^0.5.4",
     "msgpack-lite": "^0.1.26",
     "pem": "^1.14.4"
   }
