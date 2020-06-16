@@ -21,6 +21,8 @@ const getUnknownState = (resource) => {
 // Ensure that only attributes listed in the resource are part of the
 // state sent to terraform
 const filterStateByAttributes = (resource, state) => {
+  if (!state)
+    return state;
   const attributeNames = resource.block.attributes.map(attribute => attribute.name);
   const stateEntries = Object.entries(state);
   const entriesInAttributes = stateEntries.filter(([name, value]) => attributeNames.includes(name));
@@ -100,20 +102,20 @@ const createPlugin = (provider, resources) => {
   };
   const applyResourceChange = async (typeName, config, state, plan) => {
     const resource = resourceMap.get(typeName);
-    let newState;
-
     try {
       if (!plan) {
-        newState = await resource.delete(configuredProvider, state, plan);
+        const deletedState = await resource.delete(configuredProvider, state, plan);
+        const newState = filterStateByAttributes(resource, deletedState);
+        return { newState };
       } else if (!state) {
-        newState = await resource.create(configuredProvider, config, plan);
+        const createdState = await resource.create(configuredProvider, config, plan);
+        const newState = filterStateByAttributes(resource, createdState);
+        return { newState };
       } else {
-        newState = await resource.update(configuredProvider, state, config, plan);
+        const updatedState = await resource.update(configuredProvider, state, config, plan);
+        const newState = filterStateByAttributes(resource, updatedState);
+        return { newState };
       }
-
-      return {
-        newState: filterStateByAttributes(resource, newState),
-      };
     } catch (error) {
       const diagnostics = createDiagnosticsFromError(error);
       return { diagnostics };
@@ -121,7 +123,7 @@ const createPlugin = (provider, resources) => {
   };
   const upgradeResourceState = async (typeName, version, state) => {
     const resource = resourceMap.get(typeName);
-    const upgradedState = await resource.upgrade(configuredProvider, version, state);
+    const upgradedState = await resource.upgrade(version, state);
     return { upgradedState };
   };
   const importResourceState = async (typeName, id) => {
