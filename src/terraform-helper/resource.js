@@ -21,7 +21,7 @@ const defaultResource = {
   delete(provider, state) {
     return;
   },
-  upgrade(provider, version, state) {
+  upgrade(version, state) {
     return state;
   },
   import(provider, id) {

@@ -18,7 +18,7 @@ const fileResource = createResource({
   name: 'file',
   block: fileSchema,
   version: 2,
-  upgrade({ drive }, version, state) {
+  upgrade(version, state) {
     switch (version.low) {
       case 1:
         return { id: state.id, name: '' };
