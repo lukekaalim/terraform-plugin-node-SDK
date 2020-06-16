@@ -1,7 +1,8 @@
 const { createGoPluginServer } = require('../go-plugin');
 const { createTerraformService, handshake } = require('../terraform-plugin');
 const { createFileLogger, setGlobalConsole } = require('../logger');
-const { createUnknownValue } = require('./value')
+const { createUnknownValue } = require('./value');
+const { createDiagnosticsFromError } = require('./diagnostic');
 
 const mapEntryValues = (array, mapFunc) => {
   return array.map(([name, value]) => [name, mapFunc(value)]);
@@ -44,7 +45,6 @@ const createPlugin = (provider, resources) => {
   };
 
   const getSchema = async () => {
-    console.log(schema);
     return schema;
   };
 
