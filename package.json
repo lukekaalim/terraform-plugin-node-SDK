@@ -8,6 +8,10 @@
   },
   "author": "Luke Kaalim (luke@kaal.im)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:lukekaalim/terraform-plugin-sdk.git"
+  },
   "dependencies": {
     "@grpc/grpc-js": "^1.0.5",
     "@grpc/proto-loader": "^0.5.4",
