@@ -45,12 +45,12 @@ const createPlugin = (provider, resources) => {
   };
 
   const prepareProviderConfig = async (config) => {
-    const preparedConfig = provider.prepare(config);
+    const preparedConfig = await provider.prepare(config);
     return { preparedConfig };
   };
 
   const configure = async (terraformVersion, config) => {
-    configuredProvider = provider.configure(config, terraformVersion);
+    configuredProvider = await provider.configure(config, terraformVersion);
     return;
   };
 
