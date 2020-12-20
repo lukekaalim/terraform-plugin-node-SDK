@@ -12,7 +12,7 @@ const createGRPCImplementation = (requestHandler) => {
   return grpcImplementation;
 };
 
-const createGRPCService = (definition, implementation) => {
+const createGRPCService = (definition, implementation) => (server) => {
   return {
     definition,
     implementation,

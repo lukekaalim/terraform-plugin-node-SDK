@@ -3,7 +3,8 @@ const { Server, ServerCredentials } = require('@grpc/grpc-js');
 const createGRPCServer = async (address, services = [], credentials = ServerCredentials.createInsecure()) => {
   const server = new Server();
 
-  for (const { definition, implementation } of services) {
+  for (const createService of services) {
+    const { definition, implementation } = createService(server);
     server.addService(definition, implementation);
   }
 
