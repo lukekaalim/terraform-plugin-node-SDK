@@ -13,9 +13,8 @@
     "url": "git@github.com:lukekaalim/terraform-plugin-sdk.git"
   },
   "dependencies": {
-    "@grpc/grpc-js": "^1.0.5",
-    "@grpc/proto-loader": "^0.5.4",
-    "google-auth-library": "^6.0.1",
+    "@grpc/grpc-js": "^1.2.2",
+    "@grpc/proto-loader": "^0.5.5",
     "msgpack-lite": "^0.1.26",
     "pem": "^1.14.4"
   }
