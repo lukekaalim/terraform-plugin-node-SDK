@@ -7,6 +7,8 @@ const { createGRPCServerCredentials, createGRPCServer } = require('../grpc');
 const { base64RemovePadding } = require('./utils');
 
 const { createHealthcheckService } = require('../healthcheck/service');
+const { createSTDIOService } = require('../grpc-stdio/service');
+const { createControllerService } = require('../grpc-controller/service');
 
 class InvalidMagicCookieError extends Error {}
 
@@ -31,8 +33,11 @@ const createGoPluginServer = async (handshake, pluginServices = [], logger = cre
   
   // don't print to stdout, print to custom logger implementation
   grpc.setLogger(logger);
+  grpc.setLogVerbosity(grpc.logVerbosity.DEBUG)
+  const stdioService = await createSTDIOService();
   const healthcheckService = await createHealthcheckService();
-  const services = [healthcheckService, ...pluginServices];
+  const controllerService = await createControllerService();
+  const services = [healthcheckService, stdioService, controllerService, ...pluginServices];
 
   if (process.env[handshake.MagicCookieKey] !== handshake.MagicCookieValue)
     throw new InvalidMagicCookieError();
@@ -47,7 +52,9 @@ const createGoPluginServer = async (handshake, pluginServices = [], logger = cre
   }
 
   // Create a Certificate Signing Request, with a randomly generated secret key (clientKey)
-  const { csr: signingRequest, clientKey } = await pem.createCSR();
+  const { csr: signingRequest, clientKey } = await pem.createCSR({
+    altNames: ['localhost']
+  });
   // And then use the Root Certificate to sign it, creating the certificate for our server
   const { certificate, serviceKey } = await pem.createCertificate({
     certificate: rootCertificate,
