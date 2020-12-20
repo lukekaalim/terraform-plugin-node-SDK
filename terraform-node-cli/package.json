@@ -1,0 +1,19 @@
+{
+  "name": "@lukekaalim/terraform-node-cli",
+  "version": "0.1.0",
+  "description": "A command line tool to assist in the creation of terraform plugins for nodejs",
+  "main": "main.js",
+  "bin": {
+    "node-terraform": "main.js"
+  },
+  "author": "Luke Kaalim",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:lukekaalim/terraform-plugin-sdk.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "pkg": "^4.4.9"
+  }
+}
