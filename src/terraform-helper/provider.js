@@ -1,7 +1,9 @@
+const { createSchema } = require('./schema');
+
 const createProvider = ({
   name,
   version = 1,
-  schema,
+  schema = createSchema({}),
   prepare = (config) => config,
   configure = (config) => null,
 }) => ({
