@@ -143,7 +143,6 @@ const createPlugin = (provider, resources) => {
   };
 
   const run = async () => {
-    const logger = createFileLogger('./grpc.log')
     try {
       const terraformService = await createTerraformService({
         getSchema,
@@ -158,7 +157,7 @@ const createPlugin = (provider, resources) => {
         importResourceState,
         readDataSource,
       });
-      const pluginServer = await createGoPluginServer(handshake, [terraformService], logger);
+      const pluginServer = await createGoPluginServer(handshake, [terraformService]);
     } catch (error) { 
       console.error(error);
     }

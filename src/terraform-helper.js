@@ -1,7 +1,6 @@
-const { createFileLogger, setGlobalConsole } = require('./logger');
+const { setGlobalConsole, createNullLogger } = require('./logger');
 
-const logger = createFileLogger('./plugin-sdk.log')
-setGlobalConsole(logger);
+setGlobalConsole(createNullLogger());
 
 module.exports = {
   ...require('./terraform-helper/plugin'),
