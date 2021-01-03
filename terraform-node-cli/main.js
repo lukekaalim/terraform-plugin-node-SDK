@@ -3,6 +3,7 @@
 const chalk = require('chalk');
 const { version } = require('./version');
 const { install, uninstall } = require('./install');
+const { build } = require('./build');
 const { init } = require('./init');
  
 const main = async (command, ...arguments) => {
@@ -18,9 +19,11 @@ const main = async (command, ...arguments) => {
         return await install();
       case 'uninstall':
         return await uninstall();
+      case 'build':
+        return await build();
     }
   } catch (error) {
-    console.error(chalk.red(error.message));
+    console.error(chalk.red(error));
   }
 };
 

@@ -5,6 +5,24 @@ const { dirname, sep } = require('path');
 const { writeFile } = require('fs').promises;
 const { install } = require('./install');
 
+const createSkeletons = () => {
+  const packageContents = JSON.stringify({
+    private: true,
+    version: '0.1.0',
+    dependencies: {
+      '@lukekaalim/terraform-plugin-sdk': '^3.1.2'
+    },
+  }, null, 2);
+  const manifestContents = JSON.stringify({
+    type,
+    namespace,
+    version: '0.1.0',
+    entry: 'index.js',
+  }, null, 2);
+  const entryContents = `
+  `;
+}
+
 const createNodePackage = async () => {
   const dirs = process.cwd().split(sep);
   const namespace = dirs[dirs.length - 2];

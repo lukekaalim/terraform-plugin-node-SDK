@@ -6,6 +6,7 @@ const { join } = require('path');
 const { mkdir, chmod, symlink, rmdir, readFile, unlink, writeFile } = require('fs').promises;
 const homedir = require('os').homedir();
 const { createPluginPackage } = require('./pluginPackage');
+const { readManifest } = require('./manifest');
 
 const executableFile = (entry) =>
 `#!/usr/bin/env node
@@ -45,7 +46,7 @@ const getPluginFilename = (type, version) => {
 }
 
 const install = async () => {
-  const { type, namespace, version, entry } = JSON.parse(await readFile('./terraform-provider.json', 'utf8'));
+  const { type, namespace, version, entry } = await readManifest();
   console.log(chalk.blue(JSON.stringify({ type, namespace, version }, null, 2)));
   const pluginDirectory = getPluginDirectory(namespace, type, version);
   const pluginFilename = getPluginFilename(type, version);
