@@ -1,12 +1,13 @@
 {
   "name": "@lukekaalim/hashicorp-go-plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Node implementation of hashicorp go-plugin",
   "main": "src/main.js",
   "author": "Luke Kaalim (lukekaalim@gmail.com)",
   "license": "MIT",
   "dependencies": {
     "@grpc/grpc-js": "^1.2.2",
+    "@grpc/proto-loader": "^0.5.5",
     "pem": "^1.14.4"
   }
 }
