@@ -5,8 +5,8 @@ name: "Publish @lukekaalim/hashicorp-go-plugin"
 
 on:
   push:
-    paths:
-      - 'hashicorp-go-plugin/**'
+    tags:
+      - 'hashicorp-go-plugin/v*'
 
 jobs:
   publish:
