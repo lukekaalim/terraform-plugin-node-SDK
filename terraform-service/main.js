@@ -68,6 +68,12 @@ export type Schema = {
 */
 
 /*::
+export type GetSchema = () => Promise<{
+  provider: Schema,
+  resourceSchemas: { [string]: Schema },
+  dataSourceSchemas: { [string]: Schema },
+  diagnostics?: Diagnostic[], 
+}>;
 export type PrepareProviderConfig = ({
   config: DynamicValue
 }) => Promise<{
@@ -77,12 +83,7 @@ export type PrepareProviderConfig = ({
 
 export type TerraformServiceOptions = {
   // Information about what a provider supports/expects
-  getSchema: () => Promise<{
-    provider: Schema,
-    resourceSchemas: { [string]: Schema },
-    dataSourceSchemas: { [string]: Schema },
-    diagnostics?: Diagnostic[], 
-  }>,
+  getSchema: GetSchema,
   prepareProviderConfig: PrepareProviderConfig,
   validateResourceTypeConfig: ({
     typeName: string,
@@ -212,8 +213,8 @@ const createTerraformService = async (
 
   const readDataSource = createGRPCUnaryHandler(options.readDataSource);
   const stop/*: GRPCUnaryHandler*/ = async (call, callback) => {
-    await server.close();
     callback(null, { Error: '' });
+    await server.close();
   }
 
   const implementation = {
