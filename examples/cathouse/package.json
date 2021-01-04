@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "dependencies": {
+    "@lukekaalim/terraform-plugin": "^1.0.1",
+    "nanoid": "^3.1.20"
+  }
+}

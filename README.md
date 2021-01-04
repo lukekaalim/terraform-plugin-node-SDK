@@ -2,7 +2,7 @@
 title: Home
 layout: default
 nav_order: 1
-permalink: index.html
+permalink: ./
 ---
 
 # ![Terraform Plugin Node SDK Logo](./logo.png "Node Terraform")
@@ -13,8 +13,13 @@ Terraform plugins can be used to leverage and extend terraform capabilities, all
 
 > ⚠️ This is a non-serious implementation, and has 0% test coverage. Use at your own risk.
 
+## Getting Started
+Take a look at our [Getting Started Guide](./docs/getting-started), which will run you though project setup. 
+
+Following that, try the [Cat API Guide](./docs/guides/CatSDK), which runs through a fictional API and shows off some of the functions of the terraform plugin sdk.
+
 ## Packages
- - [`@lukekaalim/terraform-plugin`](terraform-plugin/README) (If you're looking to create a plugin, start here!)
+ - [`@lukekaalim/terraform-plugin`](terraform-plugin/README)
  - [`@lukekaalim/terraform-service`](terraform-service/README)
  - [`@lukekaalim/hashicorp-go-plugin`](/hashicorp-go-plugin/README)
  - [`@lukekaalim/terraform-cli`](/terraform-cli/README)
