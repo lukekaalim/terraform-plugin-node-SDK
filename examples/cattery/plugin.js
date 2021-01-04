@@ -36,6 +36,8 @@ const catResource = {
     }
   },
   async read(state, configuredProvider) {
+    if (state.id == null)
+      return null;
     return await configuredProvider.read(state.id);
   }
 };

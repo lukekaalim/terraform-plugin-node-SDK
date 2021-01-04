@@ -329,7 +329,7 @@ const catResource = {
 
 Now, we haven't coded it yet, but someone could edit a cat while we're not looking, updating it's nickname or color directly in the JSON. This is a valid case (called "configuration drift") when the state that terraform stores isn't always what's true in the _real world_.
 
-To help avoid that, we can implement a "read" function that terraform will use the get the true state of any cat.
+To help avoid that, we can implement a "read" function that terraform will use the get the true state of any cat. If the ID for a cat doesn't exist in the state, then we should also consider that cat destroyed.
 
 ```js
 const { Unknown, createPlugin, getPlanType } = require('@lukekaalim/terraform-plugin');
@@ -337,6 +337,8 @@ const { Unknown, createPlugin, getPlanType } = require('@lukekaalim/terraform-pl
 const catResource = {
   // ...
   async read(state, configuredProvider) {
+    if (state.id == null)
+      return null;
     return await configuredProvider.read(state.id);
   }
 }
