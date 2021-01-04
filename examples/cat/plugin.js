@@ -1,6 +1,7 @@
 // @flow strict
 /*:: import type { Cast } from '@lukekaalim/cast'; */
-const { createPlugin, types, Unknown, createApplyFunction, toUnknown } = require('@lukekaalim/terraform-node-sdk');
+/*:: import type { Provider, Resource } from '@lukekaalim/terraform-plugin-lib'; */
+const { createPlugin, types, Unknown, createApplyFunction, toUnknown } = require('@lukekaalim/terraform-plugin-lib');
 const { toString, toObject, toNullable } = require('@lukekaalim/cast');
 
 const { toCat, CatSDK } = require('./catSDK');
@@ -42,7 +43,47 @@ const toCatConfig/*: Cast<CatConfig>*/ = (value) => {
   }
 };
 
-const plugin = createPlugin({
+const resource/: Resource<>*/ = {
+  name: 'cat',
+  version: 1,
+  attributes: [
+    { name: 'id', type: types.string, computed: true },
+    { name: 'nickname', type: types.string, required: true },
+    { name: 'color', type: types.string, required: true },
+  ],
+  async read(state, prov) {
+    const { id } = toCat(state);
+    return await prov.read(id);
+  },
+  async plan(state, config) {
+    const { id } = state ? toCat(state) : {};
+    const { nickname, color } = toCatConfig(config);
+    return {
+      nickname,
+      color,
+      id: id || new Unknown(),
+    };
+  },
+  apply: createApplyFunction({
+    toState: toCat,
+    toPlan: toCatPlan,
+    async create(plan, provider) {
+      return await provider.create(plan.color, plan.nickname);
+    },
+    async update(state, plan, provider) {
+      return await provider.update(state.id,
+          plan.color,
+          plan.nickname
+      );
+    },
+    async destroy(state, provider) {
+      await provider.destroy(state.id);
+      return null;
+    },
+  }),
+};
+
+const provider = {
   name: 'cats',
   version: 1,
   attributes: [
@@ -52,45 +93,9 @@ const plugin = createPlugin({
     const { directory } = toProviderConfig(configValue);
     return new CatSDK(directory)
   },
-  resources: [{
-    name: 'cat',
-    version: 1,
-    attributes: [
-      { name: 'id', type: types.string, computed: true },
-      { name: 'nickname', type: types.string, required: true },
-      { name: 'color', type: types.string, required: true },
-    ],
-    async read(state, prov) {
-      const { id } = toCat(state);
-      return await prov.read(id);
-    },
-    async plan(state, config) {
-      const { id } = state ? toCat(state) : {};
-      const { nickname, color } = toCatConfig(config);
-      return {
-        nickname,
-        color,
-        id: id || new Unknown(),
-      };
-    },
-    apply: createApplyFunction({
-      toState: toCat,
-      toPlan: toCatPlan,
-      async create(plan, provider) {
-        return await provider.create(plan.color, plan.nickname);
-      },
-      async update(state, plan, provider) {
-        return await provider.update(state.id,
-            plan.color,
-            plan.nickname
-        );
-      },
-      async destroy(state, provider) {
-        await provider.destroy(state.id);
-        return null;
-      },
-    }),
-  }],
-});
+  resources: [resource],
+};
+
+const plugin = createPlugin(provider);
 
 plugin.start();

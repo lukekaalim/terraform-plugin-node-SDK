@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@lukekaalim/terraform-plugin": "file:../../terraform-plugin"
+  }
+}

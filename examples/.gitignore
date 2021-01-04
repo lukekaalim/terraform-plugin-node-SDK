@@ -1,0 +1,5 @@
+cats_data
+*.zip
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup

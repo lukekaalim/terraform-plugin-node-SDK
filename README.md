@@ -1,7 +1,15 @@
-# `@lukekaalim/terraform-plugin-sdk`
-This project is an npm package that provides tools for building Terraform Plugins.
+# Terraform Plugin Node SDK
+This project is collection of npm packages that provides tools for building Terraform Plugins.
 
 Terraform plugins can be used to leverage and extend terraform capabilities, allowing new providers and resource types.
+
+> ⚠️ This is a non-serious implementation, and has 0% test coverage. Use at your own risk.
+
+## Packages
+ - [`@lukekaalim/terraform-plugin`](terraform-plugin/README.md) (If you're looking to create a plugin, start here!)
+ - [`@lukekaalim/terraform-service`](terraform-service/README.md)
+ - [`@lukekaalim/hashicorp-go-plugin`](/hashicorp-go-plugin/README.md)
+ - [`@lukekaalim/terraform-node-cli`](/terraform-node-cli/README.md)
 
 ## What's a Plugin?
 All of terraform's ability to interact with API's comes from [_plugins_](https://www.terraform.io/docs/plugins/index.html). Terraform manages the configuration, orchestration, and dependency resolution on the resources you create, but it's a terraform plugin that allows it to interact with the world.
@@ -20,7 +28,7 @@ When using terraform, you may wish to:
 - Create resource for an API that doesn't have a provider yet
 - Manage a resource for an existing provider that doesn't provide certain functionality
 - Disagree with the implementation of an API and want to give yourself greater flexibility
-- Model existing build scripts a declarative structures?
+- Model existing build scripts as declarative structures
 
 ## Documentation
 
