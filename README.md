@@ -19,10 +19,10 @@ Take a look at our [Getting Started Guide](./docs/getting-started), which will r
 Following that, try the [Cat API Guide](./docs/guides/CatSDK), which runs through a fictional API and shows off some of the functions of the terraform plugin sdk.
 
 ## Packages
- - [`@lukekaalim/terraform-plugin`](terraform-plugin/README)
- - [`@lukekaalim/terraform-service`](terraform-service/README)
- - [`@lukekaalim/hashicorp-go-plugin`](/hashicorp-go-plugin/README)
- - [`@lukekaalim/terraform-cli`](/terraform-cli/README)
+ - [`@lukekaalim/terraform-plugin`](./terraform-plugin/README)
+ - [`@lukekaalim/terraform-service`](./terraform-service/README)
+ - [`@lukekaalim/hashicorp-go-plugin`](./hashicorp-go-plugin/README)
+ - [`@lukekaalim/terraform-cli`](./terraform-cli/README)
 
 ## What's a Plugin?
 All of terraform's ability to interact with API's comes from [_plugins_](https://www.terraform.io/docs/plugins/index.html). Terraform manages the configuration, orchestration, and dependency resolution on the resources you create, but it's a terraform plugin that allows it to interact with the world.
