@@ -39,18 +39,18 @@ const catResource = {
     return await configuredProvider.read(state.id);
   }
 };
-const cathouseProvider = {
-  name: 'cathouse',
+const catteryProvider = {
+  name: 'cattery',
   attributes: [
-    { name: 'cathousePath', type: 'string', required: true },
+    { name: 'catteryPath', type: 'string', required: true },
   ],
   resources: [catResource],
   async configure(providerConfig) {
-    const cathouse = providerConfig.cathousePath;
-    return new CatSDK(cathouse);
+    const cattery = providerConfig.catteryPath;
+    return new CatSDK(cattery);
   }
 };
 
-const plugin = createPlugin(cathouseProvider);
+const plugin = createPlugin(catteryProvider);
 
 plugin.start();

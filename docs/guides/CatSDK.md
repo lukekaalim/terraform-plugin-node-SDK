@@ -6,12 +6,12 @@ nav_order: 2
 ---
 # CatSDK Guide
 
-In this guide, we'll give a fast run through of a plugin  cats as an example. The completed project is available [in the repository `/examples/cat` folder](https://github.com/lukekaalim/terraform-plugin-node-SDK/tree/master/examples/cat).
+In this guide, we'll give a fast run through of a plugin  cats as an example. The completed project is available [in the repository `/examples/cattery` folder](https://github.com/lukekaalim/terraform-plugin-node-SDK/tree/master/examples/cattery).
 
 ## Setup
-Create a new folder called "cathouse"
+Create a new folder called "cattery"
 ```bash
-mkdir cathouse
+mkdir cattery
 ```
 And create a new terraform plugin in there
 ```bash
@@ -21,7 +21,7 @@ node-terraform init
 ## The Cat SDK
 Normally, with a terraform resource, you manage a remote API. For our example however, the resources we'll be managing will just be "files" on our local computer.
 
-More specifically, lets say a "Cat" is a JSON file with an id, color and nickname. The ID is randomly generated (no cats can have the same id). A "Cat" lives in a "Cathouse", which is a directory. The cat's filename is just it's ID as well, for ease.
+More specifically, lets say a "Cat" is a JSON file with an id, color and nickname. The ID is randomly generated (no cats can have the same id). A "Cat" lives in a "Cattery", which is a directory. The cat's filename is just it's ID as well, for ease.
 
 Heres a Cat:
 ```json
@@ -31,16 +31,16 @@ Heres a Cat:
   "nickname": "Mr Smiggles"
 }
 ```
-Here some cats in the cathouse
+Here some cats in the cattery
 ```bash
-> ls ./cathouse
+> ls ./cattery
 
 hrfb89p2ke345.json
 dfljbjdkbg983.json
 4958huj45l6kn.json
 ```
 
-You can have more that one cat in a cathouse, if you like. There are no other rules.
+You can have more that one cat in a cattery, if you like. There are no other rules.
 
 Lets create a class that can handle this behavior. We'll call it the CatSDK, since it's essentially an SDK to handle cats. We should be able to:
  - Create a Cat
@@ -48,7 +48,7 @@ Lets create a class that can handle this behavior. We'll call it the CatSDK, sin
  - Find a Cat by it's ID
  - Remove a Cat (no cats are harmed, I promise)
 
-The SDK will operate on one cathouse at a time.
+The SDK will operate on one cattery at a time.
 
 Lets model the operations using CRUD-like syntax.
 
@@ -57,8 +57,8 @@ Lets model the operations using CRUD-like syntax.
 const { writeFile, readFile, unlink } = require('fs').promises;
 
 class CatSDK {
-  constructor(cathouse) {
-    this.cathouse = cathouse;
+  constructor(cattery) {
+    this.cattery = cattery;
   }
   async create() {
     // todo
@@ -99,7 +99,7 @@ class CatSDK {
       id: nanoid(),
     };
     await writeFile(
-      this.cathouse + '/' + newCat.id + '.json',
+      this.cattery + '/' + newCat.id + '.json',
       JSON.stringify(newCat, null, 2)
     );
     return newCat;
@@ -117,7 +117,7 @@ We'll do the same for updating as well, you just need to provide the ID this tim
       id,
     };
     await writeFile(
-      this.cathouse + '/' + updatedCat.id + '.json',
+      this.cattery + '/' + updatedCat.id + '.json',
       JSON.stringify(updatedCat, null, 2)
     );
     return updatedCat;
@@ -132,7 +132,7 @@ But it should be fine for now.
 ```js
   async read(id) {
     const fileContents = await readFile(
-      this.cathouse + '/' + id + '.json',
+      this.cattery + '/' + id + '.json',
       'utf-8'
     );
     const cat = JSON.parse(fileContents);
@@ -143,7 +143,7 @@ To "destroy" a cat, we'll just unlink the file.
 ```js
   async read(id) {
     await unlink(
-      this.cathouse + '/' + id + '.json',
+      this.cattery + '/' + id + '.json',
     );
     return null;
   }
@@ -157,8 +157,8 @@ const { writeFile, readFile, unlink } = require('fs').promises;
 const { nanoid  } = require('nanoid');
 
 class CatSDK {
-  constructor(cathouse) {
-    this.cathouse = cathouse;
+  constructor(cattery) {
+    this.cattery = cattery;
   }
   async create(nickname, color) {
     const newCat = {
@@ -167,7 +167,7 @@ class CatSDK {
       id: nanoid(),
     };
     await writeFile(
-      this.cathouse + '/' + newCat.id + '.json',
+      this.cattery + '/' + newCat.id + '.json',
       JSON.stringify(newCat, null, 2)
     );
     return newCat;
@@ -179,14 +179,14 @@ class CatSDK {
       id,
     };
     await writeFile(
-      this.cathouse + '/' + updatedCat.id + '.json',
+      this.cattery + '/' + updatedCat.id + '.json',
       JSON.stringify(updatedCat, null, 2)
     );
     return updatedCat;
   }
   async read(id) {
     const fileContents = await readFile(
-      this.cathouse + '/' + id + '.json',
+      this.cattery + '/' + id + '.json',
       'utf-8'
     );
     const cat = JSON.parse(fileContents);
@@ -194,7 +194,7 @@ class CatSDK {
   }
   async destroy(id) {
     await unlink(
-      this.cathouse + '/' + id + '.json',
+      this.cattery + '/' + id + '.json',
     );
     return null;
   }
@@ -208,7 +208,7 @@ module.exports = {
 ## The Provider
 Now: lets use terraform to model our resources declaratively.
 
-Our provider will be called the "cathouse" provider, and it should expose a "cathouse_cat" resource.
+Our provider will be called the "cattery" provider, and it should expose a "cattery_cat" resource.
 
 Update our `plugin.js` file (the entry point to our plugin) to include a new type of resource.
 
@@ -230,12 +230,12 @@ const catResource = {
 };
 ```
 
-Make sure to add the catResource to the provider. We also should add a attribute that lets us known the cathouse we're working on
+Make sure to add the catResource to the provider. We also should add a attribute that lets us known the cattery we're working on
 ```js
-const cathouseProvider = {
-  name: 'cathouse',
+const catteryProvider = {
+  name: 'cattery',
   attributes: [
-    { name: 'cathousePath', type: 'string', required: true },
+    { name: 'catteryPath', type: 'string', required: true },
   ],
   resources: [catResource]
 };
@@ -244,7 +244,7 @@ const cathouseProvider = {
 (and make sure we're still using the provider in our plugin)
 
 ```js
-const plugin = createPlugin(cathouseProvider);
+const plugin = createPlugin(catteryProvider);
 
 plugin.start();
 ```
@@ -259,15 +259,15 @@ The return value of 'configure' will be the SDK, and the argument it the attribu
 ```js
 const { CatSDK } = require('./catSDK.js');
 
-const cathouseProvider = {
-  name: 'cathouse',
+const catteryProvider = {
+  name: 'cattery',
   attributes: [
-    { name: 'cathousePath', type: 'string', required: true },
+    { name: 'catteryPath', type: 'string', required: true },
   ],
   resources: [catResource],
   async configure(providerConfig) {
-    const cathouse = providerConfig.cathousePath;
-    return new CatSDK(cathouse);
+    const cattery = providerConfig.catteryPath;
+    return new CatSDK(cattery);
   }
 };
 ```
@@ -344,9 +344,9 @@ const catResource = {
 
 Perfect! We're now actually done writing the provider. Lets test it out first though. In our `main.tf` file, lets update it to include the attributes we marked as required in a provider configuration block, and add in some cats!
 
-(Make sure to create a "cathouse" first, as our code expects it to be there!)
+(Make sure to create a "cattery" first, as our code expects it to be there!)
 ```
-mkdir cathouse
+mkdir cattery
 ```
 
 Lets start with the provider.
@@ -354,27 +354,27 @@ Lets start with the provider.
 ```hcl
 terraform {
   required_providers {
-    cathouse = {
-      source = "local/example/cathouse"
+    cattery = {
+      source = "local/example/cattery"
       version = "0.1.0"
     }
   }
 }
 
-provider "cathouse" {
-  cathousePath = "./cathouse"
+provider "cattery" {
+  catteryPath = "./cattery"
 }
 ```
 
 And lets create two cats!
 
 ```hcl
-resource "cathouse_cat" "smiggles" {
+resource "cattery_cat" "smiggles" {
   nickname = "Mr Smiggles"
   color = "Light Brown"
 }
 
-resource "cathouse_cat" "jenkins" {
+resource "cattery_cat" "jenkins" {
   nickname = "Old Man Jenkins"
   color = "Black"
 }
@@ -388,15 +388,15 @@ Resource actions are indicated with the following symbols:
 
 Terraform will perform the following actions:
 
-  # cathouse_cat.jenkins will be created
-  + resource "cathouse_cat" "jenkins" {
+  # cattery_cat.jenkins will be created
+  + resource "cattery_cat" "jenkins" {
       + color    = "Black"
       + id       = (known after apply)
       + nickname = "Old Man Jenkins"
     }
 
-  # cathouse_cat.smiggles will be created
-  + resource "cathouse_cat" "smiggles" {
+  # cattery_cat.smiggles will be created
+  + resource "cattery_cat" "smiggles" {
       + color    = "Light Brown"
       + id       = (known after apply)
       + nickname = "Mr Smiggles"
@@ -414,23 +414,23 @@ can't guarantee that exactly these actions will be performed if
 Looks good! Let's apply with `terraform apply --auto-approve`
 
 ```bash
-cathouse_cat.jenkins: Creating...
-cathouse_cat.smiggles: Creating...
-cathouse_cat.jenkins: Creation complete after 0s [id=7FSJQIDsXu6iK6Iux9E43]
-cathouse_cat.smiggles: Creation complete after 0s [id=NrMgeAMWg_o3Xgt4tkbI-]
+cattery_cat.jenkins: Creating...
+cattery_cat.smiggles: Creating...
+cattery_cat.jenkins: Creation complete after 0s [id=7FSJQIDsXu6iK6Iux9E43]
+cattery_cat.smiggles: Creation complete after 0s [id=NrMgeAMWg_o3Xgt4tkbI-]
 
 Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
 ```
 Victory! Lets double check
 ```bash
-ls cathouse
+ls cattery
 ```
 ```
 7FSJQIDsXu6iK6Iux9E43.json      NrMgeAMWg_o3Xgt4tkbI-.json
 ```
 And inspect an individual cat at random
 ```
-cat cathouse/7FSJQIDsXu6iK6Iux9E43.json
+cat cattery/7FSJQIDsXu6iK6Iux9E43.json
 ```
 ```
 {

@@ -7,4 +7,4 @@ nav_order: 4
 
 ## [Google Drive](./google-drive)
 ## [Example](./example)
-## [Cathouse](./cathouse)
+## [Cattery](https://github.com/lukekaalim/terraform-plugin-node-SDK/tree/master/examples/cattery)

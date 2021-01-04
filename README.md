@@ -42,7 +42,3 @@ When using terraform, you may wish to:
 - Manage a resource for an existing provider that doesn't provide certain functionality
 - Disagree with the implementation of an API and want to give yourself greater flexibility
 - Model existing build scripts as declarative structures
-
-## Documentation
-
-Take a look at our [guides](docs/guides.md), our [api](docs/api.md) or some [examples](examples/readme.md).

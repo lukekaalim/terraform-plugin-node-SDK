@@ -1,5 +1,5 @@
 {
-  "type": "cathouse",
+  "type": "cattery",
   "namespace": "example",
   "version": "0.1.0",
   "entry": "plugin.js"
