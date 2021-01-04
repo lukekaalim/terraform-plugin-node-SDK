@@ -1,7 +1,7 @@
 // @flow strict
 /*:: import type { Provider } from './main'; */
 const { createTerraformService, setPackedDynamicValue, getDynamicValue, Unknown } = require('@lukekaalim/terraform-service');
-const { createGOPluginServer } = require('@lukekaalim/node-go-plugin');
+const { createGOPluginServer, MagicCookieError } = require('@lukekaalim/hashicorp-go-plugin');
 const { providerToSchema, resourceToSchema, createErrorDiagnostic } = require('./schema');
 
 /*::
@@ -11,7 +11,8 @@ export type TerraformSDKPlugin = {
 */
 
 const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*/ => {
-  let configuredProvider/*: ?T*/ = null;
+  let configuredProvider/*: ?T*/;
+  let providerIsConfigured = false;
 
   const getResource = (typeName) => {
     const [providerName, resourceName] = typeName.split('_', 2);
@@ -20,10 +21,10 @@ const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*
       throw new Error();
     return resource;
   };
-  const getConfiguredProvider = () => {
-    if (!configuredProvider)
-      throw new Error();
-    return configuredProvider;
+  const getConfiguredProvider = ()/*: T*/ => {
+    if (!providerIsConfigured)
+      throw new Error("Provider is not configured");
+    return (configuredProvider/*: any*/);
   };
 
   const getSchema = async () => {
@@ -65,12 +66,16 @@ const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*
   // #endregion
 
   const configure = async ({ config, terraformVersion }) => {
-    const value = getDynamicValue(config);
-    configuredProvider = await provider.configure(value);
-    
-    return {
-      diagnostics: [],
+    const providerConfigFunc = provider.configure;
+    if (!providerConfigFunc) {
+      providerIsConfigured = true;
+      return {};
     }
+    const value = getDynamicValue(config);
+    configuredProvider = await providerConfigFunc(value);
+    providerIsConfigured = true;
+    
+    return {}
   };
   // #region Resource Lifecycle
   const readResource = async ({ typeName, currentState }) => {
@@ -151,28 +156,38 @@ const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*
   };
 
   const start = async () => {
-    const goPlugin = await createGOPluginServer({
-      pluginVersion: 5,
-      magicCookieKey: 'TF_PLUGIN_MAGIC_COOKIE',
-      magicCookieValue: 'd602bf8f470bc67ca7faa0386276bbdd4330efaf76d1a219cb4d6991ca9872b2'
-    });
-    const serviceOptions = {
-      getSchema,
-      prepareProviderConfig,
-      validateResourceTypeConfig,
-      validateDataSourceConfig,
-      upgradeResourceState,
-      configure,
-      readResource,
-      planResourceChange,
-      applyResourceChange,
-      importResourceState,
-      readDataSource,
-    };
-    const terraformService = await createTerraformService(goPlugin.console, goPlugin, serviceOptions);
-    goPlugin.server.addService(terraformService.definition, terraformService.implementation);
-
-    goPlugin.start();
+    try {
+      const goPlugin = await createGOPluginServer({
+        pluginVersion: '5',
+        magicCookieKey: 'TF_PLUGIN_MAGIC_COOKIE',
+        magicCookieValue: 'd602bf8f470bc67ca7faa0386276bbdd4330efaf76d1a219cb4d6991ca9872b2'
+      });
+      const serviceOptions = {
+        getSchema,
+        prepareProviderConfig,
+        validateResourceTypeConfig,
+        validateDataSourceConfig,
+        upgradeResourceState,
+        configure,
+        readResource,
+        planResourceChange,
+        applyResourceChange,
+        importResourceState,
+        readDataSource,
+      };
+      const terraformService = await createTerraformService(goPlugin.console, goPlugin, serviceOptions);
+      goPlugin.server.addService(terraformService.definition, terraformService.implementation);
+  
+      goPlugin.start();
+    } catch (error) {
+      if (error instanceof MagicCookieError) {
+        console.log('Magic Cookie Mismatch Error');
+        console.log('Did you invoke the plugin directly? It should be installed and invoked only by the terraform binary.')
+      } else {
+        console.error(error);
+      }
+      process.exit(1);
+    }
   };
 
   return {

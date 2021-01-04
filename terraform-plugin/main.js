@@ -37,7 +37,7 @@ export type Provider<ConfiguredProvider> = {
   resources: Resource<ConfiguredProvider>[],
   attributes: Attribute[],
   description?: RichText,
-  configure(config: Configuration): Promise<ConfiguredProvider>,
+  configure?: (config: Configuration) => Promise<ConfiguredProvider>,
 };
 
 export type Resource<ConfiguredProvider> = {

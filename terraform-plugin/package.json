@@ -1,0 +1,12 @@
+{
+  "name": "@lukekaalim/terraform-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "author": "Luke Kaalim (lukekaalim@gmail.com)",
+  "license": "ISC",
+  "dependencies": {
+    "@lukekaalim/hashicorp-go-plugin": "^0.2.3",
+    "@lukekaalim/terraform-service": "^1.0.1"
+  }
+}

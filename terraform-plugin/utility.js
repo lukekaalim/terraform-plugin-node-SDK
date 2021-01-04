@@ -9,7 +9,7 @@ export type Diff =
   | 'create'
 */
 
-const getDiff = (state/*: null | State*/, plan/*: null | Plan | Configuration*/)/*: Diff*/ => {
+const getPlanType = (state/*: null | State*/, plan/*: null | Plan | Configuration*/)/*: Diff*/ => {
   if (!plan)
     return 'destroy';
   if (!state)
@@ -47,7 +47,7 @@ const toUnknown = /*:: <T>*/(value/*: mixed*/, cast/*: mixed => T*/)/*: T | Unkn
 }
 
 module.exports = {
-  getDiff,
+  getPlanType,
   toUnknown,
   createApplyFunction,
 }
