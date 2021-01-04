@@ -1,3 +1,8 @@
+---
+layout: default
+title: Plugin
+parent: Home
+---
 ## Creating a Plugin
 
 ### Introduction

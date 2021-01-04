@@ -33,8 +33,7 @@ const exampleResource = {
 const exampleProvider = {
   name: 'example',
   attributes: [],
-  resources: [exampleResource],
-  configure() {}
+  resources: [exampleResource]
 };
 
 const examplePlugin = createPlugin(exampleProvider);

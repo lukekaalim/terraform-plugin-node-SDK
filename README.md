@@ -1,3 +1,10 @@
+---
+layout: default
+title: Home
+nav_order: 1
+has_children: true
+---
+
 # Terraform Plugin Node SDK
 This project is collection of npm packages that provides tools for building Terraform Plugins.
 

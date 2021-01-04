@@ -1,3 +1,8 @@
+---
+layout: default
+title: Guides
+parent: Home
+---
 ## Guides
 
 ### [Creating a Plugin (plugin.md)](./plugin.md)

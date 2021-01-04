@@ -1,3 +1,9 @@
+---
+layout: default
+title: API
+parent: Home
+---
+
 # API
 
 `@lukekaalim/terraform-plugin-sdk` exports the following methods and objects:
