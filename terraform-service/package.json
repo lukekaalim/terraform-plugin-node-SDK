@@ -1,12 +1,13 @@
 {
   "name": "@lukekaalim/terraform-service",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An implementation of a Terraform Plugin GRPC service",
   "main": "main.js",
   "author": "Luke Kaalim (lukekaalim@gmail.com)",
   "license": "MIT",
   "dependencies": {
     "@grpc/grpc-js": "^1.2.2",
-    "@grpc/proto-loader": "^0.5.5"
+    "@grpc/proto-loader": "^0.5.5",
+    "msgpack-lite": "^0.1.26"
   }
 }
