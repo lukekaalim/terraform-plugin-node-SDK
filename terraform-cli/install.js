@@ -3,9 +3,8 @@ const os = require('os');
 const { resolve } = require('path');
 const chalk = require('chalk');
 const { join } = require('path');
-const { mkdir, chmod, symlink, rmdir, readFile, unlink, writeFile } = require('fs').promises;
+const { mkdir, chmod, rmdir, readFile, unlink, writeFile } = require('fs').promises;
 const homedir = require('os').homedir();
-const { createPluginPackage } = require('./pluginPackage');
 const { readManifest } = require('./manifest');
 
 const executableFile = (entry) =>
@@ -46,8 +45,9 @@ const getPluginFilename = (type, version) => {
 }
 
 const install = async () => {
-  const { type, namespace, version, entry } = await readManifest();
-  console.log(chalk.blue(JSON.stringify({ type, namespace, version }, null, 2)));
+  const manifest = await readManifest();
+  const { type, namespace, version, entry } = manifest;
+  console.log(chalk.blue(JSON.stringify(manifest, null, 2)));
   const pluginDirectory = getPluginDirectory(namespace, type, version);
   const pluginFilename = getPluginFilename(type, version);
   

@@ -5,6 +5,7 @@ const { version } = require('./version');
 const { install, uninstall } = require('./install');
 const { build } = require('./build');
 const { init } = require('./init');
+const { handleManifestCommand } = require('./manifest');
  
 const main = async (command, ...arguments) => {
   try {
@@ -20,7 +21,10 @@ const main = async (command, ...arguments) => {
       case 'uninstall':
         return await uninstall();
       case 'build':
-        return await build();
+        const [destination] = arguments;
+        return await build(destination);
+      case 'manifest':
+        return await handleManifestCommand();
     }
   } catch (error) {
     console.error(chalk.red(error));

@@ -1,4 +1,5 @@
 // @flow strict
+const chalk = require('chalk');
 const { toObject, toString } = require('@lukekaalim/cast');
 const { mkdir, chmod, symlink, rmdir, readFile, unlink, writeFile } = require('fs').promises;
 const { resolve, join } = require('path');
@@ -32,8 +33,15 @@ const readManifest = async (directory/*: string*/ = '.')/*: Promise<PluginManife
   return manifest;
 };
 
+
+const handleManifestCommand = async () => {
+  const manifest = await readManifest();
+  console.log(chalk.green(JSON.stringify(manifest, null, 2)));
+};
+
 module.exports = {
   toPluginManifest,
   getManifestPath,
   readManifest,
+  handleManifestCommand,
 };

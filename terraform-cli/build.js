@@ -5,7 +5,7 @@ const { createWriteStream } = require('fs');
 const { sign, cleartext: { fromText } } = require('openpgp');
 const chalk = require('chalk');
 const { spawn } = require('child_process');
-const { readFile, writeFile } = require('fs').promises;
+const { readFile, writeFile, mkdir } = require('fs').promises;
 const archiver = require('archiver');
 const { exec } = require('pkg')
 const { homedir } = require('os');
@@ -87,7 +87,7 @@ const signature = async (shasumPath) => {
   await new Promise(r => process.on('close', r));
 };
 
-const shasum = async ({ type, version } /*: PluginManifest*/, archivePaths/*: string[] */) => {
+const shasum = async ({ type, version } /*: PluginManifest*/, archivePaths/*: string[] */, destination/*: string*/) => {
   const archiveShasumLine = await Promise.all(archivePaths.map(async archivePath => {
     const archiveContents = await readFile(archivePath);
     const archiveHash = createHash('sha256');
@@ -96,16 +96,16 @@ const shasum = async ({ type, version } /*: PluginManifest*/, archivePaths/*: st
     const name = basename(archivePath);
     return [hashResult, name].join('  ');
   }));
-  const shasumPath = `terraform-provider-${type}_v${version}_SHA256SUMS`;
+  const shasumPath = join(destination, `terraform-provider-${type}_v${version}_SHA256SUMS`);
   const shasumContents = archiveShasumLine.join('\n');
   console.log(chalk.blue(shasumContents));
   await writeFile(shasumPath, shasumContents, 'utf8');
   return shasumPath;
 };
 
-const archive = async ({ type, version }/*: PluginManifest*/, target/*: Target*/, binaryPath/*: string*/)/*: Promise<string>*/ => {
+const archive = async ({ type, version }/*: PluginManifest*/, target/*: Target*/, binaryPath/*: string*/, destination/*: string*/)/*: Promise<string>*/ => {
   const goTarget = getGoTarget(target);
-  const archivePath = `terraform-provider-${type}_${version}_${goTarget}.zip`;
+  const archivePath = join(destination, `terraform-provider-${type}_${version}_${goTarget}.zip`);
   const archiveFile = createWriteStream(archivePath);
   const archiveContents = archiver('zip');
   console.log(chalk.blue(JSON.stringify(archivePath, null, 2)));
@@ -127,25 +127,24 @@ const defaultTargets = [
   }
 ];
 
-const pMap = async /*:: <A, B>*/(array/*: A[]*/, func/*: A => Promise<B>*/)/*: Promise<B[]>*/ => {
-  return await Promise.all(array.map(func));
-};
+const build = async (destination/*: string*/ = "release", targets/*: Target[]*/ = defaultTargets) => {
+  await mkdir(destination, { recursive: true });
 
-const build = async (targets/*: Target[]*/ = defaultTargets) => {
   const manifestDirectory = '.';
   const manifest = await readManifest(manifestDirectory);
   console.log(chalk.blue(JSON.stringify(manifest, null, 2)));
+  
   const archivePaths = [];
   for (const target of targets) {
     const { cleanup, path: buildTempDir } = await dir({ unsafeCleanup: true });
     try {
       const binaryPath = await binary(manifestDirectory, manifest, target, buildTempDir);
-      archivePaths.push(await archive(manifest, target, binaryPath));
+      archivePaths.push(await archive(manifest, target, binaryPath, destination));
     } finally {
       cleanup();
     }
   }
-  const shasumPath = await shasum(manifest, archivePaths);
+  const shasumPath = await shasum(manifest, archivePaths, destination);
   await signature(shasumPath);
 };
 

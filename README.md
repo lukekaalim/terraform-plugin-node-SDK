@@ -9,7 +9,7 @@ Terraform plugins can be used to leverage and extend terraform capabilities, all
  - [`@lukekaalim/terraform-plugin`](terraform-plugin/README.md) (If you're looking to create a plugin, start here!)
  - [`@lukekaalim/terraform-service`](terraform-service/README.md)
  - [`@lukekaalim/hashicorp-go-plugin`](/hashicorp-go-plugin/README.md)
- - [`@lukekaalim/terraform-node-cli`](/terraform-node-cli/README.md)
+ - [`@lukekaalim/terraform-cli`](/terraform-cli/README.md)
 
 ## What's a Plugin?
 All of terraform's ability to interact with API's comes from [_plugins_](https://www.terraform.io/docs/plugins/index.html). Terraform manages the configuration, orchestration, and dependency resolution on the resources you create, but it's a terraform plugin that allows it to interact with the world.
