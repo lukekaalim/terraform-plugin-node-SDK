@@ -1,3 +1,9 @@
+---
+title: "@lukekaalim/terraform-service"
+layout: default
+parent: Packages
+nav_order: 6
+---
 # `@lukekaalim/terraform-service`
 
 Provides a bare-bones implementation of the Terraform GRPC service. Use with `@lukekaalim/hashicorp-go-plugin` to create a terraform plugin.

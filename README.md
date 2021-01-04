@@ -1,22 +1,23 @@
 ---
-layout: default
 title: Home
+layout: default
 nav_order: 1
-has_children: true
+permalink: index.html
 ---
 
-# Terraform Plugin Node SDK
-This project is collection of npm packages that provides tools for building Terraform Plugins.
+# ![Terraform Plugin Node SDK Logo](./logo.png "Node Terraform")
+
+This project is collection of npm packages that provides tools for building [Terraform](https://www.terraform.io/) Plugins.
 
 Terraform plugins can be used to leverage and extend terraform capabilities, allowing new providers and resource types.
 
 > ⚠️ This is a non-serious implementation, and has 0% test coverage. Use at your own risk.
 
 ## Packages
- - [`@lukekaalim/terraform-plugin`](terraform-plugin/README.md) (If you're looking to create a plugin, start here!)
- - [`@lukekaalim/terraform-service`](terraform-service/README.md)
- - [`@lukekaalim/hashicorp-go-plugin`](/hashicorp-go-plugin/README.md)
- - [`@lukekaalim/terraform-cli`](/terraform-cli/README.md)
+ - [`@lukekaalim/terraform-plugin`](terraform-plugin/README) (If you're looking to create a plugin, start here!)
+ - [`@lukekaalim/terraform-service`](terraform-service/README)
+ - [`@lukekaalim/hashicorp-go-plugin`](/hashicorp-go-plugin/README)
+ - [`@lukekaalim/terraform-cli`](/terraform-cli/README)
 
 ## What's a Plugin?
 All of terraform's ability to interact with API's comes from [_plugins_](https://www.terraform.io/docs/plugins/index.html). Terraform manages the configuration, orchestration, and dependency resolution on the resources you create, but it's a terraform plugin that allows it to interact with the world.

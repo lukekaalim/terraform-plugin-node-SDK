@@ -1,10 +1,7 @@
 remote_theme: pmarsceill/just-the-docs
 
-
-logo: "icon.png"
-
-search_enabled: true
+logo: "./logo.png"
 
 aux_links:
-  "Repository":
-    - "https://github.com/lukekaalim/terraform-plugin-node-SDK"
+  "Terraform Plugin Node SDK on GitHub":
+    - "//github.com/lukekaalim/terraform-plugin-node-SDK"

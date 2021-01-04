@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Plugin
-parent: Home
+parent: Guides
 ---
 ## Creating a Plugin
 

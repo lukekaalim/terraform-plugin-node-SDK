@@ -3,3 +3,5 @@ node_modules
 *.log
 *.tfstate
 *.tfstate.baclup
+_site
+.jekyll-cache

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Examples
-parent: Home
+nav_order: 4
 ---
 # Examples
 

@@ -1,3 +1,9 @@
+---
+title: "@lukekaalim/terraform-plugin"
+layout: default
+parent: Packages
+nav_order: 5
+---
 # `@lukekaalim/terraform-plugin`
 
 Library for developing node-based terraform plugins. Uses `@lukekaalim/hashicorp-go-plugin` and `@lukekaalim/terraform-service` internally, and exposes some helper methods.

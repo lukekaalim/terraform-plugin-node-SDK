@@ -1,3 +1,9 @@
+---
+title: "@lukekaalim/terraform-cli"
+layout: default
+parent: Packages
+nav_order: 7
+---
 # `@lukekaalim/terraform-cli`
 
 A CLI utility tool to help manage node terraform plugins. Installs as the program:

@@ -1,3 +1,9 @@
+---
+title: "@lukekaalim/hashicorp-go-plugin"
+layout: default
+parent: Packages
+nav_order: 8
+---
 # `@lukekaalim/hashicorp-go-plugin`
 An implementation of _https://github.com/hashicorp/go-plugin_
 
