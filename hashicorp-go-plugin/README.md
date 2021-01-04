@@ -5,7 +5,7 @@ An implementation of _https://github.com/hashicorp/go-plugin_
 
 This is a naive, mostly reverse-engineered implementation of Hashicorp's Go Plugin, written for node. It currently provides a Server implementation.
 
-> ⚠️ This is a non-serious implementation, and has 0% test coverage. Use at your own risk. ⚠️
+> ⚠️ This is a non-serious implementation, and has 0% test coverage. Use at your own risk.
 
 ## Installation
 Requirements:
