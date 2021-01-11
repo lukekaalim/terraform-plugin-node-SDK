@@ -9,7 +9,7 @@ terraform {
 }
 
 provider "cattery" {
-  catteryPath = "./cattery"
+  cattery_path = "./cattery"
 }
 
 resource "cattery_cat" "smiggles" {

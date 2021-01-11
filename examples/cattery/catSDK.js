@@ -1,11 +1,20 @@
+// @flow strict
 const { writeFile, readFile, unlink } = require('fs').promises;
 const { nanoid  } = require('nanoid');
+/*::
+export type Cat = {
+  id: string,
+  nickname: string,
+  color: string,
+};
+*/
 
 class CatSDK {
-  constructor(cattery) {
+  /*:: cattery: string*/
+  constructor(cattery/*: string*/) {
     this.cattery = cattery;
   }
-  async create(nickname, color) {
+  async create(nickname/*: string*/, color/*: string*/)/*: Promise<Cat>*/ {
     const newCat = {
       nickname,
       color,
@@ -17,7 +26,7 @@ class CatSDK {
     );
     return newCat;
   }
-  async update(id, nickname, color) {
+  async update(id/*: string*/, nickname/*: string*/, color/*: string*/)/*: Promise<Cat>*/ {
     const updatedCat = {
       nickname,
       color,
@@ -29,7 +38,7 @@ class CatSDK {
     );
     return updatedCat;
   }
-  async read(id) {
+  async read(id/*: string*/)/*: Promise<Cat>*/ {
     const fileContents = await readFile(
       this.cattery + '/' + id + '.json',
       'utf-8'
@@ -37,11 +46,10 @@ class CatSDK {
     const cat = JSON.parse(fileContents);
     return cat;
   }
-  async destroy(id) {
+  async destroy(id/*: string*/)/*: Promise<void>*/ {
     await unlink(
       this.cattery + '/' + id + '.json',
     );
-    return null;
   }
 }
 

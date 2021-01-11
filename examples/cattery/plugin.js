@@ -1,54 +1,57 @@
+// @flow
+/*:: import type { Cat } from './catSDK'; */
+const { createPlugin, createSimpleResource, Unknown, createSimpleSchema, types } = require('@lukekaalim/terraform-plugin');
+const { CatSDK } = require('./catSDK');
 
-const { createPlugin, Unknown, getPlanType } = require('@lukekaalim/terraform-plugin');
-const { CatSDK } = require('./catSDK.js');
-
-const catResource = {
-  name: 'cat',
-  attributes: [
-    { name: 'id', type: 'string', computed: true },
-    { name: 'nickname', type: 'string', required: true },
-    { name: 'color', type: 'string', required: true },
-  ],
-  async plan(state, config, configuredProvider) {
-    return {
-      id: state?.id || new Unknown(),
-      nickname: config.nickname,
-      color: config.color
-    }
-  },
-  async apply(state, plan, configuredProvider) {
-    switch (getPlanType(state, plan)) {
-      case 'create':
-        return await configuredProvider.create(
-          plan.nickname,
-          plan.color
-        );
-      case 'update':
-        return await configuredProvider.update(
-          state.id,
-          plan.nickname,
-          plan.color
-        );
-      case 'destroy':
-        return await configuredProvider.destroy(
-          state.id
-        );
-    }
-  },
-  async read(state, configuredProvider) {
-    if (state.id == null)
-      return null;
-    return await configuredProvider.read(state.id);
-  }
+/*::
+type Plan = {
+  nickname: string,
+  color: string,
 };
+type State = Cat;
+*/
+
+const catResource = createSimpleResource/*:: <Plan, State, CatSDK>*/({
+  name: 'cat',
+  simpleSchema: {
+    required: {
+      nickname: types.string,
+      color: types.string,
+    },
+    computed: {
+      id: types.string,
+    }
+  },
+  configure(sdk) {
+    const create = async (plan) => {
+      return await sdk.create(plan.nickname, plan.color);
+    };
+    const update = async (state, plan) => {
+      return await sdk.update(state.id, plan.nickname, plan.color);
+    };
+    const read = async (state) => {
+      return await sdk.read(state.id)
+    };
+    const destroy = async (state) => {
+      return await sdk.destroy(state.id);
+    };
+    return {
+      create,
+      update,
+      read,
+      destroy,
+    }
+  },
+});
+
 const catteryProvider = {
   name: 'cattery',
-  attributes: [
-    { name: 'catteryPath', type: 'string', required: true },
-  ],
+  schema: createSimpleSchema({
+    required: { cattery_path: types.string, },
+  }),
   resources: [catResource],
   async configure(providerConfig) {
-    const cattery = providerConfig.catteryPath;
+    const cattery = providerConfig.cattery_path;
     return new CatSDK(cattery);
   }
 };
