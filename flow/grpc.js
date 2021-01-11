@@ -80,7 +80,7 @@ declare module "@grpc/grpc-js" {
 }
 
 declare module "@grpc/proto-loader" {
-  import type { PackageDefinition } from 'grpc/grpc-js';
+  import type { PackageDefinition } from '@grpc/grpc-js';
   declare module.exports: {
     load: (path: string) => Promise<PackageDefinition>
   }
