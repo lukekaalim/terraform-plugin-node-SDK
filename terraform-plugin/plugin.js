@@ -1,8 +1,9 @@
 // @flow strict
-/*:: import type { Provider } from './main'; */
-const { createTerraformService, setPackedDynamicValue, getDynamicValue, Unknown } = require('@lukekaalim/terraform-service');
+/*:: import type { Provider } from './provider'; */
+/*:: import type { Resource } from './resource'; */
+
+const { createTerraformService, setPackedDynamicValue, getDynamicValue, createDiagnosticFromError } = require('@lukekaalim/terraform-service');
 const { createGOPluginServer, MagicCookieError } = require('@lukekaalim/hashicorp-go-plugin');
-const { providerToSchema, resourceToSchema, createErrorDiagnostic } = require('./schema');
 
 /*::
 export type TerraformSDKPlugin = {
@@ -10,7 +11,7 @@ export type TerraformSDKPlugin = {
 };
 */
 
-const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*/ => {
+const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ => {
   let configuredProvider/*: ?T*/;
   let providerIsConfigured = false;
 
@@ -29,10 +30,10 @@ const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*
 
   const getSchema = async () => {
     return {
-      provider: providerToSchema(provider),
+      provider: provider.schema,
       resourceSchemas: Object.fromEntries(provider.resources.map(resource => [
         `${provider.name}_${resource.name}`,
-        resourceToSchema(resource)
+        resource.schema
       ])),
       dataSourceSchemas: {},
       diagnostics: [],
@@ -92,7 +93,7 @@ const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*
     } catch (error) {
       return {
         newState: currentState,
-        diagnostics: [createErrorDiagnostic(error)]
+        diagnostics: [createDiagnosticFromError(error)]
       };
     }
   };
@@ -113,7 +114,7 @@ const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*
       return {
         plannedState: proposedNewState,
         requiresReplace: [],
-        diagnostics: [createErrorDiagnostic(error)]
+        diagnostics: [createDiagnosticFromError(error)]
       };
     }
   };
@@ -136,7 +137,7 @@ const createPlugin = /*::<T>*/(provider/*: Provider<T>*/)/*: TerraformSDKPlugin*
       return {
         newState: plannedState,
         requiresReplace: [],
-        diagnostics: [createErrorDiagnostic(error)]
+        diagnostics: [createDiagnosticFromError(error)]
       };
     }
   };

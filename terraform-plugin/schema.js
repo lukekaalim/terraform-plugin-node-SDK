@@ -1,76 +1,71 @@
 // @flow strict
-/*:: import type { Provider, Attribute, Resource, RichText } from './main'; */
-/*:: import type { Schema, Attribute as SchemaAttribute, Diagnostic } from '@lukekaalim/terraform-service'; */
+/*:: import type { Schema, Block, NestedBlock, Attribute, Diagnostic, StringKind, Type } from '@lukekaalim/terraform-service'; */
+/*:: import type { SimpleAttributeMap } from './attribute'; */
+const { types } = require('@lukekaalim/terraform-service');
+const { createAttributesFromMap } = require('./attribute');
+/*::
+export type SimpleSchemaArgs = {
+  required?: SimpleAttributeMap,
+  computed?: SimpleAttributeMap,
+};
+*/
 
-const createDescriptionProperties = (richText/*: ?RichText*/)/*: {| description: string, descriptionKind: 0 | 1 |}*/ => {
-  if (!richText)
-    return {
-      description: '',
-      descriptionKind: 0,
-    }
-  switch (richText.type) {
-    case 'plain':
-      return {
-        description: richText.content,
-        descriptionKind: 0,
-      };
-    case 'markdown':
-      return {
-        description: richText.content,
-        descriptionKind: 1,
-      };
-  }
+const createSimpleSchema = ({ required = {}, computed = {} }/*: SimpleSchemaArgs*/)/*: Schema*/ => {
+  return createSchema({
+    block: createBlock({
+      attributes: [
+        ...createAttributesFromMap(required).map(a => ({ ...a, required: true })),
+        ...createAttributesFromMap(computed).map(a => ({ ...a, computed: true })),
+      ],
+    })
+  })
 };
 
-const attributeToSchemaAttribute = (attribute/*: Attribute*/)/*: SchemaAttribute*/ => ({
-  name: attribute.name,
-  type: Buffer.from(JSON.stringify(attribute.type)),
-  required: attribute.required || false,
-  optional: attribute.optional || false,
-  computed: attribute.computed || false,
-  sensitive: attribute.sensitive || false,
-  deprecated: attribute.deprecated || false,
-  ...createDescriptionProperties(attribute.description),
-});
+/*::
+export type BlockArgs = {
+  attributes?: Attribute[],
+  blockTypes?: NestedBlock[],
+  deprecated?: boolean,
+  descriptionKind?: StringKind,
+  description?: string,
+  version?: number,
+};
+*/
 
-const resourceToSchema = (resource/*: Resource<any>*/)/*: Schema*/ => {
+const createBlock = ({
+  attributes = [],
+  blockTypes = [],
+  deprecated = false,
+  description = '',
+  descriptionKind = 0,
+  version = 0,
+}/*: BlockArgs*/)/*: Block*/ => {
   return {
-    version: 0,
-    block: {
-      version: 0,
-      attributes: resource.attributes.map(attributeToSchemaAttribute),
-      blockTypes: [],
-      deprecated: false,
-      ...createDescriptionProperties(resource.description),
-    }
+    attributes,
+    blockTypes,
+    deprecated,
+    description,
+    descriptionKind,
+    version,
   };
 };
 
-const providerToSchema = (provider/*: Provider<any>*/)/*: Schema*/ => {
-  return {
-    version: 0,
-    block: {
-      version: 0,
-      attributes: provider.attributes.map(attributeToSchemaAttribute),
-      blockTypes: [],
-      deprecated: false,
-      ...createDescriptionProperties(provider.description),
-    }
-  }
-};
 
-const createErrorDiagnostic = (error/*: Error*/)/*: Diagnostic*/ => {
+/*::
+export type SchemaArgs = {
+  block: Block,
+  version?: number
+};
+*/
+const createSchema = ({ block, version = 1 }/*: SchemaArgs*/)/*: Schema*/ => {
   return {
-    severity: 1,
-    summary: error.message,
-    detail: error.stack,
-    attribute: { steps: [] },
+    block,
+    version,
   }
 };
 
 module.exports = {
-  createErrorDiagnostic,
-  providerToSchema,
-  resourceToSchema,
-  createDescriptionProperties,
-}
+  createSimpleSchema,
+  createSchema,
+  createBlock,
+};
