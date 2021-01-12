@@ -5,6 +5,9 @@
   "main": "main.js",
   "author": "Luke Kaalim (lukekaalim@gmail.com)",
   "license": "ISC",
+  "scripts": {
+    "postversion": "../scripts/postversion.sh"
+  },
   "dependencies": {
     "@lukekaalim/hashicorp-go-plugin": "^0.2.3",
     "@lukekaalim/terraform-service": "^2.0.0"
