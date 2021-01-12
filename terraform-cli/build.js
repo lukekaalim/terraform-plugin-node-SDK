@@ -96,7 +96,7 @@ const shasum = async ({ type, version } /*: PluginManifest*/, archivePaths/*: st
     const name = basename(archivePath);
     return [hashResult, name].join('  ');
   }));
-  const shasumPath = join(destination, `terraform-provider-${type}_v${version}_SHA256SUMS`);
+  const shasumPath = join(destination, `terraform-provider-${type}_${version}_SHA256SUMS`);
   const shasumContents = archiveShasumLine.join('\n');
   console.log(chalk.blue(shasumContents));
   await writeFile(shasumPath, shasumContents, 'utf8');
