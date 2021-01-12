@@ -1,6 +1,6 @@
 {
   "name": "@lukekaalim/terraform-service",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "An implementation of a Terraform Plugin GRPC service",
   "main": "main.js",
   "author": "Luke Kaalim (lukekaalim@gmail.com)",

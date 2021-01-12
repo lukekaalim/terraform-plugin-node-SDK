@@ -4,7 +4,7 @@
 /*:: import type { GRPCServiceDefinition, GRPCServiceImplementationMap } from '@grpc/grpc-js'; */
 const { load } = require('@grpc/proto-loader');
 const { loadPackageDefinition } = require('@grpc/grpc-js');
-const { join } = require('path');
+const path = require('path');
 
 const { createGRPCUnaryHandler } = require('./grpc');
 
@@ -20,7 +20,7 @@ const createTerraformService = async (
   server/*: { close: () => Promise<void> }*/,
   options/*: Options*/
 )/*: Promise<Service>*/ => {
-  const terraformProto = await load(join(__dirname, './terraform.proto'));
+  const terraformProto = await load(path.join(__dirname, './terraform.proto'));
   const terraformPackage = loadPackageDefinition(terraformProto);
   const definition = terraformPackage.tfplugin5.Provider.service;
 

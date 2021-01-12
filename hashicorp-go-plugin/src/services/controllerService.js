@@ -7,13 +7,13 @@
 
 const { load } = require('@grpc/proto-loader');
 const { loadPackageDefinition } = require('@grpc/grpc-js');
-const { join } = require('path');
+const path = require('path');
 
 const createControllerService = async (
   console/*: ConsoleLike*/,
   server/*: GoPluginServer*/,
 )/*: Promise<Service>*/ => {
-  const controllerProto = await load(join(__dirname, './controller.proto'));
+  const controllerProto = await load(path.join(__dirname, './controller.proto'));
   const controllerPackage = loadPackageDefinition(controllerProto);
   const definition = controllerPackage.plugin.GRPCController.service;
 

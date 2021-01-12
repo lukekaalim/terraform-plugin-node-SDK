@@ -1,6 +1,6 @@
 {
   "name": "@lukekaalim/hashicorp-go-plugin",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Node implementation of hashicorp go-plugin",
   "main": "src/main.js",
   "author": "Luke Kaalim (lukekaalim@gmail.com)",

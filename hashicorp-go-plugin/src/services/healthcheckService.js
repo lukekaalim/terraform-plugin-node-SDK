@@ -6,12 +6,12 @@
 
 const { load } = require('@grpc/proto-loader');
 const { loadPackageDefinition } = require('@grpc/grpc-js');
-const { join } = require('path');
+const path = require('path');
 
 const createHealthcheckService = async (
   console/*: ConsoleLike*/
 )/*: Promise<Service>*/ => {
-  const healthcheckProto = await load(join(__dirname, './healthcheck.proto'));
+  const healthcheckProto = await load(path.join(__dirname, './healthcheck.proto'));
   const healthCheckPackage = loadPackageDefinition(healthcheckProto);
   const definition = healthCheckPackage.grpc.health.v1.Health.service;
 

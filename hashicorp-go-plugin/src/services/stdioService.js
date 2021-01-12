@@ -7,7 +7,7 @@
 
 const { load } = require('@grpc/proto-loader');
 const { loadPackageDefinition } = require('@grpc/grpc-js');
-const { join } = require('path');
+const path = require('path');
 
 
 const createStdioService = async (
@@ -15,7 +15,7 @@ const createStdioService = async (
   logStream/*: Readable*/,
   errStream/*: Readable*/,
 )/*: Promise<Service>*/ => {
-  const stdioProto = await load(join(__dirname, './stdio.proto'));
+  const stdioProto = await load(path.join(__dirname, './stdio.proto'));
   const stdioPackage = loadPackageDefinition(stdioProto);
   const definition = stdioPackage.plugin.GRPCStdio.service;
 
