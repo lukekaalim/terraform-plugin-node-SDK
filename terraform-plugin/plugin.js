@@ -121,19 +121,27 @@ const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ =
     }
   };
   const applyResourceChange = async ({ typeName, config, plannedState, priorState }) => {
-    const { apply } = getResource(typeName);
-    if (!apply)
-      return { newState: plannedState };
-    const configuredProvider = getConfiguredProvider();
-    const newState = setPackedDynamicValue(await apply(
-      getDynamicValue(priorState),
-      getDynamicValue(plannedState),
-      configuredProvider,
-    ));
-    return {
-      newState,
-      requiresReplace: [],
-    };
+    try {
+      const { apply } = getResource(typeName);
+      if (!apply)
+        return { newState: plannedState };
+      const configuredProvider = getConfiguredProvider();
+      const newState = setPackedDynamicValue(await apply(
+        getDynamicValue(priorState),
+        getDynamicValue(plannedState),
+        configuredProvider,
+      ));
+      return {
+        newState,
+        requiresReplace: [],
+      };
+    } catch (error) {
+      return {
+        newState: setPackedDynamicValue(null),
+        requiresReplace: [],
+        diagnostics: [createDiagnosticFromError(error)]
+      };
+    }
   };
   const importResourceState = async ({ typeName, id }) => {
     return {
