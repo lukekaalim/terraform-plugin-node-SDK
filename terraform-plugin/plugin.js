@@ -19,7 +19,9 @@ const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ =
     const [providerName, resourceName] = typeName.split('_', 2);
     const resource = provider.resources.find(r => r.name === resourceName);
     if (!resource)
-      throw new Error();
+      throw new Error(
+        `Couldn't find ${typeName} (${providerName}, ${resourceName}) out of ${provider.resources.map(r => r.name).join(' ')}`
+      );
     return resource;
   };
   const getConfiguredProvider = ()/*: T*/ => {
@@ -119,27 +121,19 @@ const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ =
     }
   };
   const applyResourceChange = async ({ typeName, config, plannedState, priorState }) => {
-    try {
-      const { apply } = getResource(typeName);
-      if (!apply)
-        return { newState: plannedState };
-      const configuredProvider = getConfiguredProvider();
-      const newState = setPackedDynamicValue(await apply(
-        getDynamicValue(priorState),
-        getDynamicValue(plannedState),
-        configuredProvider,
-      ));
-      return {
-        newState,
-        requiresReplace: [],
-      };
-    } catch (error) {
-      return {
-        newState: plannedState,
-        requiresReplace: [],
-        diagnostics: [createDiagnosticFromError(error)]
-      };
-    }
+    const { apply } = getResource(typeName);
+    if (!apply)
+      return { newState: plannedState };
+    const configuredProvider = getConfiguredProvider();
+    const newState = setPackedDynamicValue(await apply(
+      getDynamicValue(priorState),
+      getDynamicValue(plannedState),
+      configuredProvider,
+    ));
+    return {
+      newState,
+      requiresReplace: [],
+    };
   };
   const importResourceState = async ({ typeName, id }) => {
     return {
