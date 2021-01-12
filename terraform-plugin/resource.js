@@ -12,7 +12,7 @@ export type SimpleResourceArgs<Plan, State, Provider> = {
   simpleSchema: SimpleSchemaArgs,
   configure: (provider: Provider) => {
     create: (plan: Plan) => Promise<State>,
-    read: (state: State) => Promise<State>,
+    read: (state: State) => Promise<State | null>,
     update: (state: State, plan: Plan) => Promise<State>,
     destroy: (state: State) => Promise<void>,
   },
@@ -23,6 +23,25 @@ export type SimpleResourceArgs<Plan, State, Provider> = {
 type Plan = { [string]: mixed | Unknown };
 */
 
+const createSimplePlan = (
+  simpleSchema/*: SimpleSchemaArgs*/,
+  state/*: ?{ [string]: mixed }*/,
+  config/*: { [string]: mixed }*/
+)/*: Plan*/ => {
+  const requiredPlan = mapObjectEntries/*:: <SimpleAttributeMap, Plan>*/(
+    simpleSchema.required || {},
+    ([name]) => [name, config[name]]
+  );
+  const computedPlan = mapObjectEntries/*:: <SimpleAttributeMap, Plan>*/(
+    simpleSchema.computed || {},
+    ([name]) => [name, state ? state[name] : new Unknown()]
+  );
+  return {
+    ...requiredPlan,
+    ...computedPlan,
+  };
+};
+
 const createSimpleResource = /*::<Pl, St, Pr>*/({
   name,
   simpleSchema,
@@ -30,18 +49,7 @@ const createSimpleResource = /*::<Pl, St, Pr>*/({
 }/*: SimpleResourceArgs<Pl, St, Pr>*/)/*: Resource*/ => {
   const schema = createSimpleSchema(simpleSchema);
   const plan = async (state, config) => {
-    const requiredPlan = mapObjectEntries/*:: <SimpleAttributeMap, Plan>*/(
-      simpleSchema.required || {},
-      ([name]) => [name, config[name]]
-    );
-    const computedPlan = mapObjectEntries/*:: <SimpleAttributeMap, Plan>*/(
-      simpleSchema.computed || {},
-      ([name]) => [name, state ? state[name] : new Unknown()]
-    );
-    return {
-      ...requiredPlan,
-      ...computedPlan,
-    };
+    return createSimplePlan(simpleSchema, state, config);
   };
   const apply = async (state, config, provider) => {
     const { create, update, destroy } = configure(provider);
@@ -102,5 +110,6 @@ const createResource = ({
 
 module.exports = {
   createSimpleResource,
+  createSimplePlan,
   createResource,
 };
