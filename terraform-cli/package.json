@@ -1,6 +1,6 @@
 {
   "name": "@lukekaalim/terraform-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A command line tool to assist in the creation of terraform plugins for nodejs",
   "main": "main.js",
   "bin": {
