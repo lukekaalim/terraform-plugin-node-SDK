@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 version=$(cat package.json | jq .version -r)
-tag="terraform-plugin/v$version"
+tag="$1/v$version"
 
 git add .
 git commit -m $tag
