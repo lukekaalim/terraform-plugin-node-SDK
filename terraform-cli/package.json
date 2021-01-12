@@ -6,6 +6,9 @@
   "bin": {
     "node-terraform": "main.js"
   },
+  "scripts": {
+    "postversion": "../scripts/postversion.sh terraform-cli"
+  },
   "author": "Luke Kaalim",
   "repository": {
     "type": "git",
