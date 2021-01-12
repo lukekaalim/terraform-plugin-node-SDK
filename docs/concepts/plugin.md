@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Plugin
-parent: Guides
+parent: Concepts
 nav_order: 1
 ---
 # Plugin
