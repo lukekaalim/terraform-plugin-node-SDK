@@ -110,7 +110,7 @@ const archive = async ({ type, version }/*: PluginManifest*/, target/*: Target*/
   const archiveContents = archiver('zip');
   console.log(chalk.blue(JSON.stringify(archivePath, null, 2)));
   const binaryContent = await readFile(binaryPath);
-  archiveContents.append(binaryContent, { name: `terraform-provider-${type}_v${version}` });
+  archiveContents.append(binaryContent, { name: `terraform-provider-${type}_v${version}`, mode: 0o744 });
   archiveContents.pipe(archiveFile);
   await archiveContents.finalize();
   return archivePath;
