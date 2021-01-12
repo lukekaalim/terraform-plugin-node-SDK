@@ -1,12 +1,12 @@
 {
   "name": "@lukekaalim/terraform-plugin",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "",
   "main": "main.js",
   "author": "Luke Kaalim (lukekaalim@gmail.com)",
   "license": "ISC",
   "scripts": {
-    "postversion": "../scripts/postversion.sh"
+    "postversion": "../scripts/postversion.sh terraform-plugin"
   },
   "dependencies": {
     "@lukekaalim/hashicorp-go-plugin": "^0.2.3",
