@@ -6,7 +6,7 @@ name: "Publish @lukekaalim/terraform-service"
 on:
   push:
     tags:
-      - '@lukekaalim/terraform-service@v*'
+      - '@lukekaalim/terraform-service@*'
 
 jobs:
   publish:
