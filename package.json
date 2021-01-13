@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "terraform-plugin-node-sdk",
+  "workspaces": [
+    "terraform-plugin",
+    "terraform-service",
+    "hashicorp-go-plugin",
+    "examples/cattery"
+  ]
+}
