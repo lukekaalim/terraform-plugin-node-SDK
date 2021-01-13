@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## 2.5.0
+## 3.0.0
 ### Added
  - resource state upgrades
  - data sources
