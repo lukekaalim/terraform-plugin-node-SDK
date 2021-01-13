@@ -1,6 +1,7 @@
 // @flow
 /*:: import type { Cat } from './catSDK'; */
 const { createPlugin, createSimpleResource, Unknown, createSimpleSchema, types } = require('@lukekaalim/terraform-plugin');
+const { createProvider } = require('@lukekaalim/terraform-plugin/provider');
 const { CatSDK } = require('./catSDK');
 
 /*::
@@ -44,7 +45,7 @@ const catResource = createSimpleResource/*:: <Plan, State, CatSDK>*/({
   },
 });
 
-const catteryProvider = {
+const catteryProvider = createProvider({
   name: 'cattery',
   schema: createSimpleSchema({
     required: { cattery_path: types.string, },
@@ -54,7 +55,7 @@ const catteryProvider = {
     const cattery = providerConfig.cattery_path;
     return new CatSDK(cattery);
   }
-};
+});
 
 const plugin = createPlugin(catteryProvider);
 
