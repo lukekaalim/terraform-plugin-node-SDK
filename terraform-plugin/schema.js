@@ -5,13 +5,19 @@ const { types } = require('@lukekaalim/terraform-service');
 const { createAttributesFromMap } = require('./attribute');
 /*::
 export type SimpleSchemaArgs = {
+  version?: number,
   required?: SimpleAttributeMap,
   computed?: SimpleAttributeMap,
 };
 */
 
-const createSimpleSchema = ({ required = {}, computed = {} }/*: SimpleSchemaArgs*/)/*: Schema*/ => {
+const createSimpleSchema = ({
+  version = 0,
+  required = {},
+  computed = {}
+}/*: SimpleSchemaArgs*/)/*: Schema*/ => {
   return createSchema({
+    version,
     block: createBlock({
       attributes: [
         ...createAttributesFromMap(required).map(a => ({ ...a, required: true })),

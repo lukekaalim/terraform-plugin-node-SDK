@@ -24,6 +24,15 @@ const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ =
       );
     return resource;
   };
+  const getDataSource = (typeName) => {
+    const [providerName, dataSourceName] = typeName.split('_', 2);
+    const dataSource = provider.dataSources.find(d => d.name === dataSourceName);
+    if (!dataSource)
+      throw new Error(
+        `Couldn't find ${typeName} (${providerName}, ${dataSourceName}) out of ${provider.dataSources.map(d => d.name).join(' ')}`
+      );
+    return dataSource;
+  }
   const getConfiguredProvider = ()/*: T*/ => {
     if (!providerIsConfigured)
       throw new Error("Provider is not configured");
@@ -37,7 +46,10 @@ const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ =
         `${provider.name}_${resource.name}`,
         resource.schema
       ])),
-      dataSourceSchemas: {},
+      dataSourceSchemas: Object.fromEntries(provider.dataSources.map(dataSource => [
+        `${provider.name}_${dataSource.name}`,
+        dataSource.schema
+      ])),
       diagnostics: [],
     };
   };
@@ -48,21 +60,41 @@ const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ =
       diagnostics: [],
     }
   };
-  const validateResourceTypeConfig = async () => {
-    return {
-      diagnostics: [],
+  const validateResourceTypeConfig = async ({ typeName, config }) => {
+    try {
+      const { validate } = getResource(typeName);
+      await validate(config);
+      return {};
+    } catch (error) {
+      return {
+        diagnostics: [createDiagnosticFromError(error)]
+      };
     }
   };
-  const validateDataSourceConfig = async () => {
-    return {
-      diagnostics: [],
+  const validateDataSourceConfig = async ({ typeName, config }) => {
+    try {
+      const { validate } = getDataSource(typeName);
+      await validate(config);
+      return {};
+    } catch (error) {
+      return {
+        diagnostics: [createDiagnosticFromError(error)]
+      };
     }
   };
-  const upgradeResourceState = async ({ rawState, typeName }) => {
-    if (!rawState.json)
-      throw new Error('oops');
+  const upgradeResourceState = async ({ rawState, typeName, version }) => {
+    const oldState = rawState.json
+      ? JSON.parse(rawState.json.toString('utf-8'))
+      : rawState.flatmap;
+    
+    if (!oldState)
+      throw new Error('Missing previous state to upgrade');
+
+    const { upgrade } = getResource(typeName);
+    const newState = await upgrade(version, oldState);
+
     return {
-      upgradedState: setPackedDynamicValue(JSON.parse(rawState.json.toString())),
+      upgradedState: setPackedDynamicValue(newState),
       diagnostics: [],
     }
   };
@@ -152,9 +184,18 @@ const createPlugin = /*::<T>*/(provider/*: Provider*/)/*: TerraformSDKPlugin*/ =
   // #endregion
 
   const readDataSource = async ({ typeName, config }) => {
-    return {
-      state: config,
-      diagnostics: [],
+    try {
+      const { read } = getDataSource(typeName);
+      const configuredProvider = getConfiguredProvider();
+      const state = await read(getDynamicValue(config), configuredProvider);
+      return {
+        state: setPackedDynamicValue(state),
+      };
+    } catch (error) {
+      return {
+        state: setPackedDynamicValue(null),
+        diagnostics: [createDiagnosticFromError(error)]
+      };
     }
   };
 
