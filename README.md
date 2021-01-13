@@ -5,7 +5,7 @@ nav_order: 1
 permalink: ./
 ---
 
-# ![Terraform Plugin Node SDK Logo](./logo.png "Node Terraform")
+# ![Terraform Plugin Node SDK Logo](./assets/logo.png "Node Terraform")
 
 This project is collection of npm packages that provides tools for building [Terraform](https://www.terraform.io/) Plugins.
 

@@ -1,6 +1,6 @@
 remote_theme: pmarsceill/just-the-docs
 
-logo: "./logo.png"
+logo: "./assets/logo.png"
 
 aux_links:
   "Terraform Plugin Node SDK on GitHub":

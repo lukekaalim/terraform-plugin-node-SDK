@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="397.67596mm"
+   height="118.99935mm"
+   viewBox="0 0 397.67596 118.99935"
+   version="1.1"
+   id="svg8"
+   inkscape:export-filename="/Users/lukekaalim/projects/terraform-node-sdk/logo.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06"
+   sodipodi:docname="node terraform.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="558.84998"
+     inkscape:cy="170.94148"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g125"
+     showgrid="false"
+     inkscape:snap-global="false"
+     fit-margin-top="25"
+     fit-margin-left="25"
+     fit-margin-right="25"
+     fit-margin-bottom="25"
+     inkscape:window-width="1680"
+     inkscape:window-height="922"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(13.324011,-57.786947)">
+    <g
+       id="g125"
+       transform="matrix(0.44902154,0,0,0.44902154,-11.387324,48.499055)">
+      <path
+         transform="matrix(0,0.75250932,-0.75250932,0,202.96688,89.183152)"
+         style="fill:#008000;stroke-width:0.26458332"
+         d="m 125.51635,129.55653 -20.23585,35.04953 -40.471704,0 -20.235851,-35.04953 20.235851,-35.049519 40.471704,0 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0"
+         inkscape:flatsided="true"
+         sodipodi:arg2="0.52359878"
+         sodipodi:arg1="0"
+         sodipodi:r2="20.235851"
+         sodipodi:r1="40.471703"
+         sodipodi:cy="129.55653"
+         sodipodi:cx="85.044647"
+         sodipodi:sides="6"
+         id="path10"
+         sodipodi:type="star" />
+      <path
+         sodipodi:type="star"
+         id="path115"
+         sodipodi:sides="6"
+         sodipodi:cx="85.044647"
+         sodipodi:cy="129.55653"
+         sodipodi:r1="40.471703"
+         sodipodi:r2="20.235851"
+         sodipodi:arg1="0"
+         sodipodi:arg2="0.52359878"
+         inkscape:flatsided="true"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 125.51635,129.55653 -20.23585,35.04953 -40.471704,0 -20.235851,-35.04953 20.235851,-35.049519 40.471704,0 z"
+         style="fill:#008000;stroke-width:0.26458332"
+         transform="matrix(0,0.75250932,-0.75250932,0,175.23108,42.819796)" />
+      <path
+         transform="matrix(0,0.75250932,-0.75250932,0,256.87392,89.235271)"
+         style="fill:#005500;stroke-width:0.26458332;fill-opacity:1"
+         d="m 125.51635,129.55653 -20.23585,35.04953 -40.471704,0 -20.235851,-35.04953 20.235851,-35.049519 40.471704,0 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0"
+         inkscape:flatsided="true"
+         sodipodi:arg2="0.52359878"
+         sodipodi:arg1="0"
+         sodipodi:r2="20.235851"
+         sodipodi:r1="40.471703"
+         sodipodi:cy="129.55653"
+         sodipodi:cx="85.044647"
+         sodipodi:sides="6"
+         id="path117"
+         sodipodi:type="star" />
+      <path
+         sodipodi:type="star"
+         id="path119"
+         sodipodi:sides="6"
+         sodipodi:cx="85.044647"
+         sodipodi:cy="129.55653"
+         sodipodi:r1="40.471703"
+         sodipodi:r2="20.235851"
+         sodipodi:arg1="0"
+         sodipodi:arg2="0.52359878"
+         inkscape:flatsided="true"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
+         d="m 125.51635,129.55653 -20.23585,35.04953 -40.471704,0 -20.235851,-35.04953 20.235851,-35.049519 40.471704,0 z"
+         style="fill:#008000;stroke-width:0.26458332"
+         transform="matrix(0,0.75250932,-0.75250932,0,175.45786,135.57515)" />
+    </g>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot127"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="matrix(0.81420095,0,0,0.81420095,-162.58158,-181.86306)"><flowRegion
+         id="flowRegion129"><rect
+           id="rect131"
+           width="444.28571"
+           height="228.57143"
+           x="298.57144"
+           y="348.23398" /></flowRegion><flowPara
+         id="flowPara133"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Fira Code';-inkscape-font-specification:'Fira Code'">Node Terraform</flowPara></flowRoot>  </g>
+</svg>
