@@ -6,7 +6,7 @@
   "author": "Luke Kaalim (lukekaalim@gmail.com)",
   "license": "ISC",
   "scripts": {
-    "postversion": "../scripts/postversion.sh terraform-plugin"
+    "postversion": "../scripts/postversion.sh"
   },
   "dependencies": {
     "@lukekaalim/hashicorp-go-plugin": "^0.2.5",

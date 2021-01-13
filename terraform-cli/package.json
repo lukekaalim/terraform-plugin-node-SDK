@@ -7,7 +7,7 @@
     "node-terraform": "main.js"
   },
   "scripts": {
-    "postversion": "../scripts/postversion.sh terraform-cli"
+    "postversion": "../scripts/postversion.sh"
   },
   "author": "Luke Kaalim",
   "repository": {
