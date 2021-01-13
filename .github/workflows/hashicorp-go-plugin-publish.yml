@@ -6,7 +6,7 @@ name: "Publish @lukekaalim/hashicorp-go-plugin"
 on:
   push:
     tags:
-      - 'hashicorp-go-plugin/v*'
+      - '@lukekaalim/hashicorp-go-plugin@v*'
 
 jobs:
   publish:
