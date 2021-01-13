@@ -1,6 +1,6 @@
 {
   "name": "@lukekaalim/terraform-plugin",
-  "version": "2.4.2",
+  "version": "3.0.0",
   "description": "",
   "main": "main.js",
   "author": "Luke Kaalim (lukekaalim@gmail.com)",
